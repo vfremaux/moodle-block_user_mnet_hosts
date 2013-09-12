@@ -27,7 +27,7 @@
 
 $publishes = array(
     'mnetaccess' => array(
-		'servicename' => 'mnetaccezss',
+		'servicename' => 'mnetaccess',
 		'description' => get_string('mnetaccess_service_name', 'block_user_mnet_hosts'),
         'apiversion' => 1,
         'classname'  => '',

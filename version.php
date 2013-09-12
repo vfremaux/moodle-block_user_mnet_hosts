@@ -25,9 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2012062000;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011112900;        // Requires this Moodle version
+$plugin->version   = 2013020801;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2012120301;        // Requires this Moodle version (2.4)
 $plugin->component = 'block_user_mnet_hosts'; // Full name of the plugin (used for diagnostics)
-$plugin->maturity = MATURITY_BETA; 
-$plugin->release = '2.2.0 (build 2012062000)'; 
-$plugin->dependencies = array();
+$plugin->maturity = MATURITY_RC;
+$plugin->release = "2.4 (Build 2013020801)";

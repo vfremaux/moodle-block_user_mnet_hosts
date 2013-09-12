@@ -18,6 +18,8 @@
 */
 function user_mnet_host_add_access($user, $wwwroot){
 
+	global $DB;
+
 	if (empty($wwwroot)) {
 		return 'Add access error : empty host';
 	}
@@ -37,6 +39,7 @@ function user_mnet_host_add_access($user, $wwwroot){
 				return "Add access : updated for $user->username on $wwwroot with $hostfieldname";
 			}
   		} else {
+  			$accessrec = new StdClass();
   			$accessrec->fieldid = $userfield->id;
   			$accessrec->userid = $user->id;
   			$accessrec->data = 1;
@@ -60,6 +63,8 @@ function user_mnet_host_add_access($user, $wwwroot){
 */
 function user_mnet_host_remove_access($user, $wwwroot){
 
+	global $OUTPUT, $DB;
+
 	if (empty($wwwroot)) {
 		if (debugging()) echo $OUTPUT->notification('Add access : empty host');
 		return;
@@ -77,6 +82,7 @@ function user_mnet_host_remove_access($user, $wwwroot){
   			$accessrec->value = 0;
   			$DB->update_record('user_info_data', $accessrec);
   		} else {
+  			$accessrec = new StdClass();
   			$accessrec->fieldid = $userfield->id;
   			$accessrec->userid = $user->id;
   			$accessrec->value = 0;

@@ -43,4 +43,7 @@ if (!defined('MOODLE_INTERNAL')) die ("You cannot use this script this way");
 	$syncstr = get_string('synchonizingaccesses', 'block_user_mnet_hosts');
 	$settings->add(new admin_setting_heading('synchronization', get_string('synchonizingaccesses', 'block_user_mnet_hosts'), "<a href=\"{$CFG->wwwroot}/blocks/user_mnet_hosts/admin.php\">$syncstr</a>"));
 
+	$settings->add(new admin_setting_configcheckbox('block_u_m_h_maharapassthru', get_string('maharapassthru', 'block_user_mnet_hosts'),
+           get_string('configmaharapassthru', 'block_user_mnet_hosts'), 1));
+
 ?>

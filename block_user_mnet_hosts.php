@@ -1,4 +1,4 @@
-<?PHP //$Id: block_user_mnet_hosts.php,v 1.2 2012-06-29 16:42:51 vf Exp $
+<?PHP //$Id: block_user_mnet_hosts.php,v 1.1.1.1.2.2 2013-07-25 12:04:51 mo2dlemaster Exp $
 
 class block_user_mnet_hosts extends block_list {
     function init() {
@@ -6,68 +6,74 @@ class block_user_mnet_hosts extends block_list {
     }
 
     function has_config() {
-        return false;
+        return true;
     }
 
-    function applicable_formats() {
-        return array('all' => true, 'mod' => false, 'tag' => false, 'my' => true);
-    }
+	function applicable_formats() {
+		return array('all' => true, 'mod' => false, 'tag' => false, 'my' => true);
+	}
 
-    function get_content() {
-        global $THEME, $CFG, $USER, $PAGE, $OUTPUT, $DB;
+	function get_content() {
+		global $THEME, $CFG, $USER, $PAGE, $OUTPUT, $DB;
+		
+		$PAGE->requires->js('/blocks/user_mnet_hosts/js/jump.js');
+		
+		// only for logged in users!
+		if (!isloggedin() || isguestuser()) {
+			return false;
+		}
 
-        $PAGE->requires->js('/blocks/user_mnet_hosts/js/jump.js');
+		if (!is_enabled_auth('mnet')) {
+			// no need to query anything remote related
+			$this->content = new StdClass();
+			$this->content->footer = $OUTPUT->notification(get_string('errormnetauthdisabled', 'block_user_mnet_hosts'));
+			return $this->content;
+		}
+		
+		$systemcontext = context_system::instance();
+		
+		// check for outgoing roaming permission first
+		if (!has_capability('moodle/site:mnetlogintoremote', $systemcontext, NULL, false)) {
+			if (has_capability('moodle/site:config', $systemcontext)){
+				$this->content = new StdClass();
+				$this->content->footer = get_string('errornocapacitytologremote', 'block_user_mnet_hosts');
+			}
+			return '';
+		}
 
-        // only for logged in users!
-        if (!isloggedin() || isguestuser()) {
-            return false;
-        }
+		if ($this->content !== NULL) {
+			return $this->content;
+		}
 
-        if (!is_enabled_auth('mnet')) {
-            // no need to query anything remote related
-            $this->content->footer = $OUTPUT->notification(get_string('errormnetauthdisabled', 'block_user_mnet_hosts'));
-            return $this->content;
-        }
-
-        // check for outgoing roaming permission first
-        if (!has_capability('moodle/site:mnetlogintoremote', context_system::instance(), NULL, false)) {
-            // debugging('Missing capacity to connect');
-            return '';
-        }
-
-        if ($this->content !== NULL) {
-            return $this->content;
-        }
-
-        // TODO: Test this query - it's appropriate? It works?
-        // get the hosts and whether we are doing SSO with them
-        $sql = "
-             SELECT DISTINCT 
-                 h.id, 
-                 h.name,
-                 h.wwwroot,
-                 a.name as application,
-                 a.display_name
-             FROM 
-                 {mnet_host} h,
-                 {mnet_application} a,
-                 {mnet_host2service} h2s_IDP,
-                 {mnet_service} s_IDP,
-                 {mnet_host2service} h2s_SP,
-                 {mnet_service} s_SP
-             WHERE
-                 h.id != '{$CFG->mnet_localhost_id}' AND
-                 h.id = h2s_IDP.hostid AND
-                 h.deleted = 0 AND
-                 h.applicationid = a.id AND
-                 h2s_IDP.serviceid = s_IDP.id AND
-                 s_IDP.name = 'sso_idp' AND
-                 h2s_IDP.publish = '1' AND
-                 h.id = h2s_SP.hostid AND
-                 h2s_SP.serviceid = s_SP.id AND
-                 s_SP.name = 'sso_idp' AND
-                 h2s_SP.publish = '1'
-             ORDER BY
+		// TODO: Test this query - it's appropriate? It works?
+		// get the hosts and whether we are doing SSO with them
+		$sql = "
+			SELECT DISTINCT 
+				h.id, 
+				h.name,
+				h.wwwroot,
+				a.name as application,
+				a.display_name
+			FROM 
+				{mnet_host} h,
+				{mnet_application} a,
+				{mnet_host2service} h2s_IDP,
+				{mnet_service} s_IDP,
+				{mnet_host2service} h2s_SP,
+				{mnet_service} s_SP
+			WHERE
+				h.id != '{$CFG->mnet_localhost_id}' AND
+				h.id = h2s_IDP.hostid AND
+				h.deleted = 0 AND
+				h.applicationid = a.id AND
+				h2s_IDP.serviceid = s_IDP.id AND
+				s_IDP.name = 'sso_idp' AND
+				h2s_IDP.publish = '1' AND
+				h.id = h2s_SP.hostid AND
+				h2s_SP.serviceid = s_SP.id AND
+				s_SP.name = 'sso_idp' AND
+				h2s_SP.publish = '1'
+			ORDER BY
                  a.display_name,
                  h.name";
 
@@ -94,8 +100,7 @@ class block_user_mnet_hosts extends block_list {
 
         $mnet_accesses = array();
 
-
-        if ($usermnetaccessfields = $DB->get_records_sql_menu($sql)){        
+        if ($usermnetaccessfields = $DB->get_records_sql_menu($sql)){
             foreach($usermnetaccessfields as $key => $datum){
                 $key = str_replace('access', '', $key);
                 $mnet_accesses[str_replace('-', '', strtolower($key))] = str_replace('-', '', $datum);
@@ -112,17 +117,27 @@ class block_user_mnet_hosts extends block_list {
 	            preg_match('/https?:\/\/([^.]*)/', $host->wwwroot, $matches);
 	            $hostprefix = strtolower($matches[1]);
 
-	            if (empty($mnet_accesses[strtolower(str_replace('-', '', $hostprefix))]) && !has_capability('moodle/site:doanything', context_system::instance(0))){
-	                continue;
-	            }
+				if ($host->application == 'moodle' || !$CFG->block_u_m_h_maharapassthru){
+		            if (empty($mnet_accesses[strtolower(str_replace('-', '', $hostprefix))]) && !has_capability('block/user_mnet_hosts:accessall', context_block::instance($this->instance->id))){
+		                continue;
+		            }
+		        }
+
 	            $icon  = '<img src="'.$OUTPUT->pix_url('/i/'.$host->application.'_host').'" class="icon" alt="'.get_string('server', 'block_mnet_hosts').'" />';
 
                 $this->content->icons[] = $icon;
 
+				$cleanname = preg_replace('/^https?:\/\//', '', $host->name);
+				$cleanname = str_replace('.', '', $cleanname);
+				$target = '';
+				if (@$CFG->user_mnet_hosts_new_window){
+					$target = " target=\"{$cleanname}\" "  ;
+					$target = " target=\"_blank\" "  ;
+				}
 
                 if ($host->id == $USER->mnethostid) {
                     $this->content->items[]="<a title=\"" .s($host->name).
-                        "\" href=\"{$host->wwwroot}\">". s($host->name) ."</a>";
+                        "\" href=\"{$host->wwwroot}\" $target >". s($host->name) ."</a>";
                 } else {
                     $this->content->items[]="<a title=\"" .s($host->name).
                         "\" href=\"javascript:jump('$CFG->wwwroot','$host->id')\">" . s($host->name) ."</a>";
@@ -149,7 +164,7 @@ class block_user_mnet_hosts extends block_list {
 	*/
     
 	function rpc_user_mnet_check($remoteuser, $fromwwwwroot){
-	}    
+	}
 }
 
 ?>
