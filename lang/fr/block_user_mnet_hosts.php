@@ -28,6 +28,8 @@ $string['single_short'] = 'Synchroniser les champs d\'accès';
 $string['synchonizingaccesses'] = 'Synchonisation des champs de contrôle d\'accès au réseau';
 $string['syncplatforms'] = 'Si vous avez ajouté ou défini des nouveaux partenaires dans le réseau Moodle, vous devriez resynchroniser la définition des champs d\'accès pour permettre à vos utilisateurs de voir les nouvelles destinations dans le bloc "Mes sites du réseau"';
 $string['user_mnet_hosts'] = 'Mes sites du réseau';
+$string['masteradminoverride'] = 'L\'administrateur peut traverser le réseau';
+$string['configmasteradminoverride'] = 'si vous cochez cette case, l\'administrateur de cette plate-forme pourra traverser les passages réseau et aller administrer les autres moddles. vous devrez néanmoins lui donner les droits localement pour cela. Dans un réseau de plates-formes, vous ne devrez pas avoir plus d\'un réglage de ce type activé à la fois';
 
 $string['resync_help'] = '
 <h2>Bloc de circulation contrôlée entre plates-formes</h2>

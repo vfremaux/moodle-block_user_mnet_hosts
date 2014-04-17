@@ -47,6 +47,27 @@ Where :
             $userdata['myhosts'][] = array('name'=> $SITE->shortname, 'url' => $CFG->wwwroot, 'count' => count($courses));
         }
 
+Patch content :
+
+// PATCH : Get user's custom fields and aggregate them to the user profile
+$sql = "
+    SELECT
+        f.shortname,
+        d.data
+    FROM
+        {user_info_field} f,
+        {user_info_data} d
+    WHERE
+        d.userid = ? AND
+        f.id = d.fieldid
+";
+if ($profilefields = $DB->get_records_sql_menu($sql, array($mnet_session->userid))){
+    foreach($profilefields as $fieldname => $fielddata){
+        $userdata["profile_field_{$fieldname}"] = $fielddata;
+    }
+}        
+// /PATCH
+
 
 Patch part 2 : Getting custom profile back and updating matching field definitions
 
@@ -91,3 +112,22 @@ A future provision for a back-check is foreseen, but still not developed.
 
 Strict exclusion of some user should be obtained using SSO Access Control in Mnet admin, but might
 not be usable for mass setup.
+
+Local admin restrictions
+########################
+
+User Mnet Host block will not allow any local admin to roam through MNET doors. This is because
+the admin account named "admin" is assigned usually to distinct physical users, and yet be named
+the same.
+
+In a Moodle network, you will surely want having a master admin that governs them all. In this case
+the user_mnet_host block has a special override feature that allows the admin account to use the mnet doors
+by derogation. 
+
+you will need to add a $CFG special key to the config file, but only on the site your global admin
+resides : 
+
+if (preg_match('#http://mymainpattern#', $CFG->wwwroot)){
+	$CFG->user_mnet_hosts_admin_override = 1;
+}
+
