@@ -31,6 +31,7 @@ $string['synchonizingaccesses'] = 'Synchronising access control fields to the ne
 $string['syncplatforms'] = 'If you have added or defined some new MNET peers, you may resynchronize the defintion of access fields so your users can see the new destinations in the "User Mnet Host" block';
 $string['user_mnet_hosts'] = 'My Moodle hosts';
 $string['resync'] = 'Resync all fields';
+$string['errorlocaladminconstrainted'] = 'A local administrator of a virtual moodle cannot roam to other nodes';
 $string['resync_help'] = '
 <h2>Controlled roaming in MNET</h2>
 <h3>Resynchroniation of access control fields</h3>

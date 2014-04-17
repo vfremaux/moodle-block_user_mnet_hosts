@@ -14,6 +14,7 @@
  */
 
 	require_once('../../config.php');
+	require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 
 	$context = context_system::instance();
 
@@ -31,7 +32,6 @@
     $PAGE->navbar->add($full);
     $PAGE->set_title($full);
     $PAGE->set_heading($short);
-    /* SCANMSG: may be additional work required for $navigation variable */
     $PAGE->set_focuscontrol('');
     $PAGE->set_cacheable(false);
     $PAGE->set_button('');
@@ -43,14 +43,14 @@
   		$accesscategory->name = get_string('accesscategory', 'block_user_mnet_hosts');
   		$accesscategory->sortorder = 1;
   		$id = $DB->insert_record('user_info_category', $accesscategory);
-  		set_config('accesscategory',$id);
+  		set_config('accesscategory', $id);
   	}
 
     //We are going to get all non-deleted hosts from our database
     $knownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot');
 
     //Then we get all accessfields
-    $accessfields = $DB->get_records_select('user_info_field','shortname like \'access%\'');
+    $accessfields = $DB->get_records_select('user_info_field','shortname LIKE \'access%\'');
 	//We create local variables to monitor the actions
 	$created = 0;
 	$ignored = 0;
@@ -61,9 +61,8 @@
 	  		$ignored++;
 	  		continue;
 	  	}
-	  	preg_match('/https?:\/\/([^.]*)/', $host->wwwroot, $matches);
-	  	$hostprefix = $matches[1];
-	  	$expectedname = 'access'.str_replace('-', '', strtoupper($hostprefix)); // need cleaning name from hyphens
+	  	$expectedname = user_mnet_hosts_make_accesskey($host->wwwroot, true); // need cleaning name from hyphens
+	  	$hostkey = user_mnet_hosts_make_accesskey($host->wwwroot, false);
 	  	$results = false;
 	  	if ($accessfields){
 		  	foreach($accessfields as $field){     
@@ -78,7 +77,6 @@
 		if(!$results){	  
 			$newfield = new stdClass;
 			$newfield->shortname = $expectedname;
-			$hostkey = strtoupper($hostprefix);
 			$newfield->name = get_string('fieldname', 'block_user_mnet_hosts').' '.$hostkey;
 			$newfield->datatype = 'checkbox';
 			$newfield->locked = 1;
@@ -101,4 +99,3 @@
     echo('</div>');
 
     echo $OUTPUT->footer($COURSE);
-?>

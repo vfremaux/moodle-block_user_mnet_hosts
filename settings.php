@@ -34,7 +34,9 @@ if (!defined('MOODLE_INTERNAL')) die ("You cannot use this script this way");
 					$newvalue->userid = $u->id;
 					$newvalue->fieldid = $fieldid;
 					$newvalue->data = 1;
-					$DB->insert_record('user_info_data', $newvalue);
+					if (!$DB->record_exists('user_info_data', array('userid' => $u->id, 'fieldid' => $fieldid))){
+						$DB->insert_record('user_info_data', $newvalue);
+					}
 				}
 			}
 		}
