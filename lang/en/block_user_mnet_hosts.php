@@ -28,9 +28,13 @@ $string['single_full'] = 'Synchronise platforms fields';
 $string['single_short'] = 'Network Synchronisation';
 $string['single_short'] = 'Synchronise fields';
 $string['synchonizingaccesses'] = 'Synchronising access control fields to the network configuration';
-$string['syncplatforms'] = 'If you have added or defined some new MNET peers, you may resynchronize the defintion of access fields so your users can see the new destinations in the "User Mnet Host" block';
+$string['syncplatforms'] = 'If you have added or defined some new MNET peers, you may resynchronize the definition of access fields so your users can see the new destinations in the "User Mnet Host" block';
 $string['user_mnet_hosts'] = 'My Moodle hosts';
 $string['resync'] = 'Resync all fields';
+$string['errorlocaladminconstrainted'] = 'A local administrator of a virtual moodle cannot roam to other nodes';
+$string['masteradminoverride'] = 'Let admin account roam';
+$string['configmasteradminoverride'] = 'If checked this admin can roam to all other MNET connected moodles to administrate them. You will have by the way to assign him explicitely admin roles and credentials there. You SHOULD NOT have more than one unique moodle having this option checked in your network';
+
 $string['resync_help'] = '
 <h2>Controlled roaming in MNET</h2>
 <h3>Resynchroniation of access control fields</h3>

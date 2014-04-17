@@ -90,3 +90,35 @@ function user_mnet_host_remove_access($user, $wwwroot){
   		}
   	}
 }
+
+/**
+* Gets the access state for a user in a specified host knwon by wwwroot
+* @param object $user
+* @param string $wwwroot
+*/
+function user_mnet_host_read_access($user, $wwwroot){
+	global $OUTPUT, $DB;
+	
+	if (empty($wwwroot)) {
+		if (debugging()) echo $OUTPUT->notification('Read access : empty host');
+		return;
+	}
+	if (empty($user)) {
+		if (debugging()) echo $OUTPUT->notification('Read access : empty user');
+		return;
+	}
+
+	// power users always have all accesses open
+	$context = context_system::instance();
+	if (has_capability('block/user_mnet_hosts:accessall', $context, $user->id)) return true;
+
+  	preg_match('/https?:\/\/([^.]*)/', $wwwroot, $matches);
+  	$hostprefix = $matches[1];
+  	$hostfieldname = 'access'.str_replace('-', '', strtoupper($hostprefix)); // need cleaning name from hyphens
+  	if($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))){
+  		if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))){
+  			return $accessrec->data;
+  		}
+  	}
+	return false;
+}

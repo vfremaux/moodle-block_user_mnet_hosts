@@ -45,4 +45,3 @@
     echo('</div>');
 
     echo $OUTPUT->footer($COURSE);
-?>

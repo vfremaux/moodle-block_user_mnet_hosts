@@ -1,8 +1,10 @@
 <?PHP //$Id: block_user_mnet_hosts.php,v 1.1.1.1.2.2 2013-07-25 12:04:51 mo2dlemaster Exp $
 
+require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
+
 class block_user_mnet_hosts extends block_list {
     function init() {
-        $this->title = get_string('user_mnet_hosts','block_user_mnet_hosts') ;
+        $this->title = get_string('user_mnet_hosts', 'block_user_mnet_hosts') ;
     }
 
     function has_config() {
@@ -22,8 +24,15 @@ class block_user_mnet_hosts extends block_list {
 		if (!isloggedin() || isguestuser()) {
 			return false;
 		}
+		
+		// impeach local administrator to roam elsewhere
+		if (($USER->username == 'admin') && ($USER->auth == 'manual') && empty($CFG->user_mnet_hosts_admin_override)){
+			$this->content = new StdClass();
+			$this->content->footer = $OUTPUT->notification(get_string('errorlocaladminconstrainted', 'block_user_mnet_hosts'));
+			return $this->content;
+		}
 
-		if (!is_enabled_auth('mnet')) {
+		if (!is_enabled_auth('multimnet') && !is_enabled_auth('mnet')) {
 			// no need to query anything remote related
 			$this->content = new StdClass();
 			$this->content->footer = $OUTPUT->notification(get_string('errormnetauthdisabled', 'block_user_mnet_hosts'));
@@ -78,7 +87,7 @@ class block_user_mnet_hosts extends block_list {
                  h.name";
 
         $hosts = $DB->get_records_sql($sql);
-
+        
         // if mnet access profile does not exist, setup profile
         if (!$DB->get_records_select('user_info_field', " name LIKE 'access%' ")){
            // TODO : Initialize mnetaccess profile data
@@ -106,6 +115,7 @@ class block_user_mnet_hosts extends block_list {
                 $mnet_accesses[str_replace('-', '', strtolower($key))] = str_replace('-', '', $datum);
             }
         }
+        
         $this->content = new stdClass;
         $this->content->items = array();
         $this->content->icons = array();
@@ -114,11 +124,10 @@ class block_user_mnet_hosts extends block_list {
         if ($hosts) {
             foreach ($hosts as $host) {
 	            // implemente user access filtering
-	            preg_match('/https?:\/\/([^.]*)/', $host->wwwroot, $matches);
-	            $hostprefix = strtolower($matches[1]);
+	            $hostaccesskey = strtolower(user_mnet_hosts_make_accesskey($host->wwwroot, false));
 
-				if ($host->application == 'moodle' || !$CFG->block_u_m_h_maharapassthru){
-		            if (empty($mnet_accesses[strtolower(str_replace('-', '', $hostprefix))]) && !has_capability('block/user_mnet_hosts:accessall', context_block::instance($this->instance->id))){
+				if ($host->application == 'moodle' || empty($CFG->block_u_m_h_maharapassthru)){
+		            if (empty($mnet_accesses[$hostaccesskey]) && !has_capability('block/user_mnet_hosts:accessall', context_block::instance($this->instance->id))){
 		                continue;
 		            }
 		        }
@@ -139,8 +148,13 @@ class block_user_mnet_hosts extends block_list {
                     $this->content->items[]="<a title=\"" .s($host->name).
                         "\" href=\"{$host->wwwroot}\" $target >". s($host->name) ."</a>";
                 } else {
-                    $this->content->items[]="<a title=\"" .s($host->name).
-                        "\" href=\"javascript:jump('$CFG->wwwroot','$host->id')\">" . s($host->name) ."</a>";
+                	if (is_enabled_auth('multimnet')){
+	                    $this->content->items[]="<a title=\"" .s($host->name).
+	                        "\" href=\"javascript:multijump('$CFG->wwwroot','$host->id')\">" . s($host->name) ."</a>";
+	                } else {
+	                    $this->content->items[]="<a title=\"" .s($host->name).
+	                        "\" href=\"javascript:standardjump('$CFG->wwwroot','$host->id')\">" . s($host->name) ."</a>";
+	                }
                 }
             }
         } else {
@@ -163,8 +177,7 @@ class block_user_mnet_hosts extends block_list {
 	* Register it
 	*/
     
-	function rpc_user_mnet_check($remoteuser, $fromwwwwroot){
+	function remote_user_mnet_check($remoteuser, $fromwwwwroot){
 	}
 }
 
-?>

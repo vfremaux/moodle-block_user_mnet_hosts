@@ -22,12 +22,15 @@ $string['maharapassthru'] = 'Libre accès Mahara';
 $string['configmaharapassthru'] = 'Si activé, tout utilisateur du réseau Moodle pourra suivre les liens vers les Mahara enregistrés. Sinon le contrôle d\'accès sur champ de profil est encore actif pour les sites Mahara.';
 $string['nohostsforyou'] = 'Aucun hôte disponible';
 $string['pluginname'] = 'Controle d\'acces réseau';
+$string['resync'] = 'Resynchroniser les définitions';
 $string['single_full'] = 'Champs d\'accès';
 $string['single_short'] = 'Synchroniser les champs d\'accès';
 $string['synchonizingaccesses'] = 'Synchonisation des champs de contrôle d\'accès au réseau';
 $string['syncplatforms'] = 'Si vous avez ajouté ou défini des nouveaux partenaires dans le réseau Moodle, vous devriez resynchroniser la définition des champs d\'accès pour permettre à vos utilisateurs de voir les nouvelles destinations dans le bloc "Mes sites du réseau"';
 $string['user_mnet_hosts'] = 'Mes sites du réseau';
-$string['resync'] = 'Resynchroniser les définitions';
+$string['masteradminoverride'] = 'L\'administrateur peut traverser le réseau';
+$string['configmasteradminoverride'] = 'si vous cochez cette case, l\'administrateur de cette plate-forme pourra traverser les passages réseau et aller administrer les autres moddles. vous devrez néanmoins lui donner les droits localement pour cela. Dans un réseau de plates-formes, vous ne devrez pas avoir plus d\'un réglage de ce type activé à la fois';
+
 $string['resync_help'] = '
 <h2>Bloc de circulation contrôlée entre plates-formes</h2>
 <h3>Redéfinition des champs de contrôle d\'accès</h3>
@@ -40,3 +43,4 @@ répondant à une mise en place particulière. Afin de faciliter cette mise en p
 ce script permet de restaurer automatiquement les attributs du profil manquant, en 
 explorant le réseau Moodle de confiance.</p>
 ';
+$string['errorlocaladminconstrainted'] = 'Un administrateur d\'un noeud virtuel ne peut pas circuler à travers le réseau.';
