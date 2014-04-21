@@ -30,7 +30,7 @@ $publishes = array(
 		'servicename' => 'mnetaccess',
 		'description' => get_string('mnetaccess_service_name', 'block_user_mnet_hosts'),
         'apiversion' => 1,
-        'classname'  => '',
+        'classname'  => 'block_user_mnet_hosts',
         'filename'   => 'block_user_mnet_hosts.php',
         'methods'    => array(
             'remote_user_mnet_check'
