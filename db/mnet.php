@@ -31,7 +31,7 @@ $publishes = array(
 		'description' => get_string('mnetaccess_service_name', 'block_user_mnet_hosts'),
         'apiversion' => 1,
         'classname'  => 'block_user_mnet_hosts',
-        'filename'   => 'block_user_mnet_hosts.php',
+        'filename'   => 'blocks/user_mnet_hosts/block_user_mnet_hosts.php',
         'methods'    => array(
             'remote_user_mnet_check'
         ),
