@@ -87,7 +87,7 @@ class block_user_mnet_hosts extends block_list {
                  h.name";
 
         $hosts = $DB->get_records_sql($sql);
-                
+        
         // if mnet access profile does not exist, setup profile
         if (!$DB->get_records_select('user_info_field', " name LIKE 'access%' ")){
            // TODO : Initialize mnetaccess profile data
