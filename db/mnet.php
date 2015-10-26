@@ -19,24 +19,24 @@
  * This file contains the mnet services for the user_mnet_host plugin
  *
  * @since 2.0
- * @package blocks
- * @subpackage user_mnet_hosts
+ * @package block_user_mnet_hosts
  * @copyright 2012 Valery Fremaux
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $publishes = array(
     'mnetaccess' => array(
-		'servicename' => 'mnetaccess',
-		'description' => get_string('mnetaccess_service_name', 'block_user_mnet_hosts'),
+        'servicename' => 'mnetaccess',
+        'description' => get_string('mnetaccess_service_name', 'block_user_mnet_hosts'),
         'apiversion' => 1,
         'classname'  => 'block_user_mnet_hosts',
-        'filename'   => 'blocks/user_mnet_hosts/block_user_mnet_hosts.php',
+        'filename'   => 'block_user_mnet_hosts.php',
         'methods'    => array(
             'remote_user_mnet_check'
         ),
     ),
 );
+
 $subscribes = array(
     'mnetaccess' => array(
         'remote_user_mnet_check' => 'blocks/user_mnet_hosts/block_user_mnet_hosts.php/remote_user_mnet_check',

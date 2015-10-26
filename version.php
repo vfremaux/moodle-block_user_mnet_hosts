@@ -19,14 +19,14 @@
  *
  * @package    block
  * @subpackage user_mnet_hosts
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
+ * @copyright  2013 Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2013020801;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2012120301;        // Requires this Moodle version (2.4)
+$plugin->version   = 2014020300;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2013111800;        // Requires this Moodle version (2.4)
 $plugin->component = 'block_user_mnet_hosts'; // Full name of the plugin (used for diagnostics)
-$plugin->maturity = MATURITY_RC;
-$plugin->release = "2.5 (Build 2013020801)";
+$plugin->maturity = MATURITY_BETA;
+$plugin->release = "2.6 (Build 2014020300)";

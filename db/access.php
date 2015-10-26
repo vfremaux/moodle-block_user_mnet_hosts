@@ -17,7 +17,7 @@
 /**
  * Messages block caps.
  *
- * @package    block_messages
+ * @package    block_user_mnet_hosts
  * @copyright  Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
