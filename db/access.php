@@ -18,7 +18,8 @@
  * Messages block caps.
  *
  * @package    block_user_mnet_hosts
- * @copyright  Mark Nelson <markn@moodle.com>
+ * @category   blocks
+ * @copyright  Valery Fremaux <valery.fremaux@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

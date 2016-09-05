@@ -19,7 +19,8 @@
  * This file contains the mnet services for the user_mnet_host plugin
  *
  * @since 2.0
- * @package block_user_mnet_hosts
+ * @package   block_user_mnet_hosts
+ * @category  blocks
  * @copyright 2012 Valery Fremaux
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

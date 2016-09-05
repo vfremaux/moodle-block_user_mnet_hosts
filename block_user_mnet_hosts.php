@@ -14,9 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * @package block_user_mnet_hosts
+ * @category  blocks
+ * @author Edouard Poncelet
+ * @author  Valery Fremaux (valery.fremaux@gmail.com)
+ * @copyright  2008 Valery Fremaux
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 
 class block_user_mnet_hosts extends block_list {
+
     function init() {
         $this->title = get_string('user_mnet_hosts', 'block_user_mnet_hosts') ;
     }
@@ -30,18 +42,23 @@ class block_user_mnet_hosts extends block_list {
     }
 
     function get_content() {
-        global $THEME, $CFG, $USER, $PAGE, $OUTPUT, $DB;
+        global $THEME, $CFG, $USER, $PAGE, $OUTPUT, $DB, $SESSION, $COURSE;
+
+        $config = get_config('block_user_mnet_hosts');
+
+        if (empty($config->displaylimit)) {
+            set_config('displaylimit', 40, 'block_user_mnet_hosts');
+        }
 
         $PAGE->requires->js('/blocks/user_mnet_hosts/js/jump.js');
 
         // Only for logged in users!
-
         if (!isloggedin() || isguestuser()) {
             return false;
         }
 
-        // impeach local administrator to roam elsewhere
-        if (($USER->username == 'admin') && ($USER->auth == 'manual') && empty($CFG->user_mnet_hosts_admin_override)){
+        // Impeach local administrator to roam elsewhere.
+        if (($USER->username == 'admin') && ($USER->auth == 'manual') && empty($config->localadminoverride)) {
             $this->content = new StdClass();
             $this->content->footer = $OUTPUT->notification(get_string('errorlocaladminconstrainted', 'block_user_mnet_hosts'));
             return $this->content;
@@ -69,80 +86,46 @@ class block_user_mnet_hosts extends block_list {
             return $this->content;
         }
 
-        // TODO: Test this query - it's appropriate? It works?
-        // get the hosts and whether we are doing SSO with them
-        $sql = "
-            SELECT DISTINCT
-                h.id,
-                h.name,
-                h.wwwroot,
-                a.name as application,
-                a.display_name
-            FROM
-                {mnet_host} h,
-                {mnet_application} a,
-                {mnet_host2service} h2s_IDP,
-                {mnet_service} s_IDP,
-                {mnet_host2service} h2s_SP,
-                {mnet_service} s_SP
-            WHERE
-                h.id != '{$CFG->mnet_localhost_id}' AND
-                h.id = h2s_IDP.hostid AND
-                h.deleted = 0 AND
-                h.applicationid = a.id AND
-                h2s_IDP.serviceid = s_IDP.id AND
-                s_IDP.name = 'sso_idp' AND
-                h2s_IDP.publish = '1' AND
-                h.id = h2s_SP.hostid AND
-                h2s_SP.serviceid = s_SP.id AND
-                s_SP.name = 'sso_idp' AND
-                h2s_SP.publish = '1'
-            ORDER BY
-                 a.display_name,
-                 h.name";
+        $hosts = user_mnet_hosts_get_hosts();
+        $mnet_accesses = user_mnet_hosts_get_access_fields();
 
-        $hosts = $DB->get_records_sql($sql);
-
-        // if mnet access profile does not exist, setup profile
-        if (!$DB->get_records_select('user_info_field', " name LIKE 'access%' ")) {
-           // TODO : Initialize mnetaccess profile data
-        }
-
-        // get user profile fields for access to hosts
-        $sql = "
-            SELECT
-                uif.shortname,
-                data
-            FROM
-                {user_info_data} uid,
-                {user_info_field} uif
-            WHERE
-                uid.userid = $USER->id AND
-                uid.fieldid = uif.id AND
-                uif.shortname LIKE 'access%'
-        ";
-
-        $mnet_accesses = array();
-
-        if ($usermnetaccessfields = $DB->get_records_sql_menu($sql)) {
-            foreach ($usermnetaccessfields as $key => $datum) {
-                $key = str_replace('access', '', $key);
-                $mnet_accesses[str_replace('-', '', strtolower($key))] = str_replace('-', '', $datum);
-            }
-        }
-
-        $this->content = new stdClass();
+        $this->content = new StdClass();
         $this->content->items = array();
         $this->content->icons = array();
         $this->content->footer = '';
 
         if ($hosts) {
+            $maxhosts = count($hosts);
+            $i = 0;
+            $j = 0;
             foreach ($hosts as $host) {
-                // Implemente user access filtering.
+                $i++;
+                if ($maxhosts > $config->displaylimit) {
+
+                    $SESSION->umhfilter = optional_param('umhfilter', @$SESSION->umhfilter, PARAM_TEXT);
+
+                    if (!empty($SESSION->umhfilter)) {
+                        if (!preg_match('/'.preg_quote($SESSION->umhfilter).'/i', $host->name)) {
+                            continue;
+                        }
+                    }
+                }
+
+                // i all hosts / j visible only
+                $j++;
+                if (($maxhosts > $config->displaylimit) && ($j >= $config->displaylimit)) {
+                    if ($i < $maxhosts) {
+                        $this->content->icons[] = '';
+                        $this->content->items[] = get_string('usefiltertoreduce', 'block_user_mnet_hosts');
+                    }
+                    break;
+                }
+
+                // Implement user access filtering.
                 $hostaccesskey = strtolower(user_mnet_hosts_make_accesskey($host->wwwroot, false));
 
-                if ($host->application == 'moodle' || empty($CFG->block_u_m_h_maharapassthru)) {
-                    if (empty($mnet_accesses[$hostaccesskey]) && !has_capability('block/user_mnet_hosts:accessall', context_block::instance($this->instance->id))){
+                if ($host->application == 'moodle' || empty($config->maharapassthru)) {
+                    if (empty($mnet_accesses[$hostaccesskey]) && !has_capability('block/user_mnet_hosts:accessall', context_system::instance())) {
                         continue;
                     }
                 }
@@ -154,16 +137,16 @@ class block_user_mnet_hosts extends block_list {
                 $cleanname = preg_replace('/^https?:\/\//', '', $host->name);
                 $cleanname = str_replace('.', '', $cleanname);
                 $target = '';
-                if (@$CFG->user_mnet_hosts_new_window){
-                    $target = " target=\"{$cleanname}\" "  ;
-                    $target = " target=\"_blank\" "  ;
+                if (@$CFG->user_mnet_hosts_new_window) {
+                    $target = " target=\"{$cleanname}\" ";
+                    $target = " target=\"_blank\" ";
                 }
 
                 if ($host->id == $USER->mnethostid) {
                     $this->content->items[]="<a title=\"" .s($host->name).
                         "\" href=\"{$host->wwwroot}\" $target >". s($host->name) ."</a>";
                 } else {
-                    if (is_enabled_auth('multimnet')){
+                    if (is_enabled_auth('multimnet')) {
                         $this->content->items[]="<a title=\"" .s($host->name).
                             "\" href=\"javascript:multijump('$CFG->wwwroot','$host->id')\">" . s($host->name) ."</a>";
                     } else {
@@ -175,24 +158,32 @@ class block_user_mnet_hosts extends block_list {
         } else {
             $this->content->footer = $OUTPUT->notification(get_string('nohostsforyou', 'block_user_mnet_hosts'));
         }
+        if (count($hosts) > $config->displaylimit) {
+            $footer = '<form name="umhfilterform" action="#">';
+            $footer .= '<input type="hidden" name="id" value="'.$COURSE->id.'" />';
+            $footer .= '<input class="form-minify" type="text" name="umhfilter" value="'.(@$SESSION->umhfilter).'" />';
+            $footer .= '<input class="form-minify" type="submit" name="go" value="'.get_string('filter', 'block_user_mnet_hosts').'" />';
+            $footer .= '</form>';
+            $this->content->footer = $footer;
+        }
         return $this->content;
     }
 
     // RPC dedicated functions
     /**
-    * checks locally if an incoming user has remote provision to come in  
-    * Call needs to be hooked on "login" access (and mnet landing) to
-    * avoid back door effect.
-    * Called by : the landing node
-    * Checked in : the local node
-    * @param $remoteuser : structure containing username, userremoteroot identity
-    * @param $fromwwwroot : remote caller identity
-    *
-    * TODO : implement this security check.
-    * Register it
-    */
+     * checks locally if an incoming user has remote provision to come in  
+     * Call needs to be hooked on "login" access (and mnet landing) to
+     * avoid back door effect.
+     * Called by : the landing node
+     * Checked in : the local node
+     * @param $remoteuser : structure containing username, userremoteroot identity
+     * @param $fromwwwroot : remote caller identity
+     *
+     * TODO : implement this security check.
+     * Register it
+     */
     
-    function remote_user_mnet_check($remoteuser, $fromwwwwroot){
+    function remote_user_mnet_check($remoteuser, $fromwwwwroot) {
     }
 }
 

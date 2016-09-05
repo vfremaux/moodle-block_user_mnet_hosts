@@ -15,43 +15,43 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This page will be used to manually synchronize hosts fields
- *
+ * @package block_user_mnet_hosts
+ * @category  blocks
  * @author Edouard Poncelet
- * @package block-publishflow
- * @category blocks
+ * @author  Valery Fremaux (valery.fremaux@gmail.com)
+ * @copyright  2008 Valery Fremaux
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
- **/
+ * This page will be used to manually synchronize hosts fields
+ */
 
 require('../../config.php');
 
 $context = context_system::instance();
 
-// Security : only for master admins
+// Security.
+
 require_login();
 require_capability('moodle/site:config', $context);
 
-$full = get_string('single_full', 'block_user_mnet_hosts');
-$short = get_string('single_short', 'block_user_mnet_hosts');
-
-$navlinks[] = array('name' => $full, 'link' => "$CFG->wwwroot", 'type' => 'misc');
-$navigation = build_navigation($navlinks);
 
 $url = new moodle_url('/blocks/user_mnet_hosts/admin.php');
 
 $PAGE->set_url($url);
 $PAGE->set_context($context);
-$PAGE->set_title($full);
-$PAGE->set_heading($short);
+$PAGE->set_title(get_string('pluginname', 'block_user_mnet_hosts'));
+$PAGE->set_heading(get_string('admintitle', 'block_user_mnet_hosts'));
 $PAGE->set_pagelayout('admin');
-/* SCANMSG: may be additional work required for $navigation variable */
+$PAGE->navbar->add(get_string('pluginname', 'block_user_mnet_hosts'));
+$PAGE->navbar->add(get_string('admintitle', 'block_user_mnet_hosts'));
 $PAGE->set_focuscontrol('');
 $PAGE->set_cacheable(false);
 $PAGE->set_button('');
+
 echo $OUTPUT->header();
 
 echo $OUTPUT->box_start();
-echo(get_string('syncplatforms', 'block_user_mnet_hosts'));
+echo get_string('syncplatforms', 'block_user_mnet_hosts');
 echo $OUTPUT->help_icon('resync', 'block_user_mnet_hosts');
 echo $OUTPUT->box_end();
 
@@ -59,6 +59,7 @@ $fieldkeystr = get_string('fieldkey', 'block_user_mnet_hosts');
 $fieldnamestr = get_string('fieldname', 'block_user_mnet_hosts');
 
 $accessfields = $DB->get_records_select('user_info_field', " shortname LIKE 'access%' ", array());
+
 if ($accessfields) {
     $table = new html_table();
     $table->header = array("<b>$fieldkeystr</b>", "<b>$fieldnamestr</b>");
@@ -76,8 +77,8 @@ if ($accessfields) {
     echo $OUTPUT->box_end();
 }
 
-echo('<div="buttonarray" align="center">');
+echo '<div class="buttonarray" align="center">';
 echo $OUTPUT->single_button(new moodle_url('/blocks/user_mnet_hosts/synch.php'), get_string('dosync', 'block_user_mnet_hosts'), 'get');
-echo('</div>');
+echo '</div>';
 
-echo $OUTPUT->footer($COURSE);
+echo $OUTPUT->footer();

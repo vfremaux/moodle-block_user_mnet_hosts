@@ -14,53 +14,41 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('MOODLE_INTERNAL')) {
-    die ("You cannot use this script this way");
+defined('MOODLE_INTERNAL') || die();
+
+if (!isset($CFG->accesscategory)) {
+    xmldb_block_user_mnet_hosts_install();
 }
 
-/// records in config the user field category holding access control fields
+$syncstr = get_string('synchonizingaccesses', 'block_user_mnet_hosts');
 
-    if (!isset($CFG->accesscategory)) {
-        $accesscategory = new stdClass;
-        $accesscategory->name = get_string('accesscategory', 'block_user_mnet_hosts');
-        $accesscategory->sortorder = 1;
-        $id = $DB->insert_record('user_info_category', $accesscategory);
-        set_config('accesscategory', $id);
-    }
+$settings->add(new admin_setting_heading('synchronization', get_string('synchonizingaccesses', 'block_user_mnet_hosts'), "<a href=\"{$CFG->wwwroot}/blocks/user_mnet_hosts/admin.php\">$syncstr</a>"));
 
-// Adding self access field.
+$sourceoptions = array('mnet_host' => get_string('mnetsource', 'block_user_mnet_hosts'),
+                       'block_vmoodle' => get_string('vmoodlesource', 'block_user_mnet_hosts'),
+                       'vmoodle_and_mnet' => get_string('vmoodleandmnetsource', 'block_user_mnet_hosts'));
 
-    preg_match('/https?:\/\/([^.]*)/', $CFG->wwwroot, $matches);
-    $hostprefix = $matches[1];
-    $expectedname = 'access'.str_replace('-', '', strtoupper($hostprefix)); // need cleaning name from hyphens
+$settings->add(new admin_setting_configselect('block_user_mnet_hosts/source', get_string('configaccesssource', 'block_user_mnet_hosts'),
+       get_string('configaccesssource_desc', 'block_user_mnet_hosts'), 'mnet_host', $sourceoptions));
 
-    if (!$selfaccess = $DB->get_record('user_info_field', array('shortname' => $expectedname))) {
-        $newfield = new stdClass;
-        $newfield->shortname = $expectedname;
-        $hostkey = strtoupper($hostprefix);
-        $newfield->name = get_string('fieldname', 'block_user_mnet_hosts').' '.$hostkey;
-        $newfield->datatype = 'checkbox';
-        $newfield->locked = 1;
-        $newfield->categoryid = $CFG->accesscategory;
-        if ($fieldid = $DB->insert_record('user_info_field', $newfield)) {
-            // we need setup a field value for all non deleted users
-            if ($users = $DB->get_records('user', array('deleted' => 0))) {
-                foreach ($users as $u) {
-                    $newvalue = new StdClass;
-                    $newvalue->userid = $u->id;
-                    $newvalue->fieldid = $fieldid;
-                    $newvalue->data = 1;
-                    if (!$DB->record_exists('user_info_data', array('userid' => $u->id, 'fieldid' => $fieldid))) {
-                        $DB->insert_record('user_info_data', $newvalue);
-                    }
-                }
-            }
-        }
-    }
+$settings->add(new admin_setting_configtext('block_user_mnet_hosts/keydeepness', get_string('configkeydeepness', 'block_user_mnet_hosts'),
+       get_string('configkeydeepness_desc', 'block_user_mnet_hosts'), 1, PARAM_INT, 2));
 
-    $syncstr = get_string('synchonizingaccesses', 'block_user_mnet_hosts');
-    $settings->add(new admin_setting_heading('synchronization', get_string('synchonizingaccesses', 'block_user_mnet_hosts'), "<a href=\"{$CFG->wwwroot}/blocks/user_mnet_hosts/admin.php\">$syncstr</a>"));
+$settings->add(new admin_setting_heading('display', get_string('display', 'block_user_mnet_hosts'), ''));
 
-    $settings->add(new admin_setting_configcheckbox('block_u_m_h_maharapassthru', get_string('maharapassthru', 'block_user_mnet_hosts'),
-           get_string('configmaharapassthru', 'block_user_mnet_hosts'), 1));
+$settings->add(new admin_setting_configtext('block_user_mnet_hosts/displaylimit', get_string('configdisplaylimit', 'block_user_mnet_hosts'),
+       get_string('configdisplaylimit_desc', 'block_user_mnet_hosts'), 40));
 
+$settings->add(new admin_setting_heading('mnetbehaviour', get_string('mnetbehaviour', 'block_user_mnet_hosts'), ''));
+
+$settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/maharapassthru', get_string('configmaharapassthru', 'block_user_mnet_hosts'),
+       get_string('configmaharapassthru_desc', 'block_user_mnet_hosts'), 1));
+
+$settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/singleaccountcheck', get_string('configsingleaccountcheck', 'block_user_mnet_hosts'),
+       get_string('configsingleaccountcheck_desc', 'block_user_mnet_hosts'), 1));
+
+$settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/localadminoverride', get_string('configlocaladminoverride', 'block_user_mnet_hosts'),
+       get_string('configlocaladminoverride_desc', 'block_user_mnet_hosts'), 0));
+
+$settings->add(new admin_setting_configcheckbox('disablemnetimportfilter', get_string('configdisablemnetimportfilter', 'block_user_mnet_hosts'),
+       get_string('configdisablemnetimportfilter_desc', 'block_user_mnet_hosts'), 1));

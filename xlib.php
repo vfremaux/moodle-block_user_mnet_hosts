@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * XLIB contains interface function for peer moodle components
  *
@@ -23,6 +25,27 @@
  *
  */
 
+require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
+
+/**
+*
+*/
+function user_mnet_hosts_get_accesskey($wwwroot, $full = false) {
+    return user_mnet_hosts_make_accesskey($wwwroot, $full);
+}
+
+// Wrappers from older versions
+function user_mnet_host_add_access($user, $wwwroot) {
+   return user_mnet_hosts_add_access($user, $wwwroot);
+}
+function user_mnet_host_remove_access($user, $wwwroot) {
+    return user_mnet_hosts_remove_access($user, $wwwroot);
+}
+function user_mnet_host_read_access($user, $wwwroot) {
+    return user_mnet_hosts_read_access($user, $wwwroot);
+}
+
+
 /**
  * grants a user access to a platform in his profile customized data.
  * Note that this operation should ONLY be perfomed on a host where the
@@ -30,24 +53,24 @@
  * @param object $user
  * @param string $wwwroot
  */
-function user_mnet_host_add_access($user, $wwwroot) {
-
+function user_mnet_hosts_add_access($user, $wwwroot) {
     global $DB;
 
     if (empty($wwwroot)) {
         return 'Add access error : empty host';
     }
+
     if (empty($user)) {
         return 'Add access error : empty user';
     }
 
     preg_match('/https?:\/\/([^.]*)/', $wwwroot, $matches);
     $hostprefix = $matches[1];
-    $hostfieldname = 'access'.str_replace('-', '', strtoupper($hostprefix)); // need cleaning name from hyphens
-    if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))){
-        if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))){
+    $hostfieldname = 'access'.str_replace('-', '', strtoupper($hostprefix)); // Need cleaning name from hyphens.
+    if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))) {
+        if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))) {
             $accessrec->data = 1;
-            if (!$DB->update_record('user_info_data', $accessrec)){
+            if (!$DB->update_record('user_info_data', $accessrec)) {
                 return "Access Update Failure for $user->username on $wwwroot with $hostfieldname";
             } else {
                 return "Add access : updated for $user->username on $wwwroot with $hostfieldname";
@@ -57,7 +80,7 @@ function user_mnet_host_add_access($user, $wwwroot) {
             $accessrec->fieldid = $userfield->id;
             $accessrec->userid = $user->id;
             $accessrec->data = 1;
-            if (!$DB->insert_record('user_info_data', $accessrec)){
+            if (!$DB->insert_record('user_info_data', $accessrec)) {
                 return "Access Update Failure  for $user->username on $wwwroot with $hostfieldname";
             } else {
                 return "Add access : granted for $user->username on $wwwroot with $hostfieldname";
@@ -75,22 +98,24 @@ function user_mnet_host_add_access($user, $wwwroot) {
  * @param object $user
  * @param string $wwwroot
  */
-function user_mnet_host_remove_access($user, $wwwroot) {
+function user_mnet_hosts_remove_access($user, $wwwroot) {
     global $OUTPUT, $DB;
 
     if (empty($wwwroot)) {
-        if (debugging()) echo $OUTPUT->notification('Add access : empty host');
+        if (debugging()) {
+            echo $OUTPUT->notification('Add access : empty host');
+        }
         return;
     }
 
     if (empty($user)) {
-        if (debugging()) echo $OUTPUT->notification('Add access : empty user');
+        if (debugging()) {
+            echo $OUTPUT->notification('Add access : empty user');
+        }
         return;
     }
 
-    preg_match('/https?:\/\/([^.]*)/', $wwwroot, $matches);
-    $hostprefix = $matches[1];
-    $hostfieldname = 'access'.str_replace('-', '', strtoupper($hostprefix)); // need cleaning name from hyphens
+    $hostfieldname = user_mnet_hosts_make_accesskey($wwwroot, false);
     if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))) {
         if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))) {
             $accessrec->value = 0;
@@ -110,31 +135,59 @@ function user_mnet_host_remove_access($user, $wwwroot) {
  * @param object $user
  * @param string $wwwroot
  */
-function user_mnet_host_read_access($user, $wwwroot) {
+function user_mnet_hosts_read_access($user, $wwwroot) {
     global $OUTPUT, $DB;
 
     if (empty($wwwroot)) {
-        if (debugging()) echo $OUTPUT->notification('Read access : empty host');
+        if (debugging()) {
+            echo $OUTPUT->notification('Read access : empty host');
+        }
         return;
     }
     if (empty($user)) {
-        if (debugging()) echo $OUTPUT->notification('Read access : empty user');
+        if (debugging()) {
+            echo $OUTPUT->notification('Read access : empty user');
+        }
         return;
     }
 
-    // power users always have all accesses open
+    // Power users always have all accesses open.
     $context = context_system::instance();
     if (has_capability('block/user_mnet_hosts:accessall', $context, $user->id)) {
         return true;
     }
 
-    preg_match('/https?:\/\/([^.]*)/', $wwwroot, $matches);
-    $hostprefix = $matches[1];
-    $hostfieldname = 'access'.str_replace('-', '', strtoupper($hostprefix)); // need cleaning name from hyphens
-    if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))){
-        if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))){
+    $hostfieldname = user_mnet_hosts_make_accesskey($wwwroot, false);
+    if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))) {
+        if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))) {
             return $accessrec->data;
         }
     }
     return false;
+}
+
+function user_mnet_hosts_read_group_access($groupid, $wwwroot) {
+}
+
+/**
+ * Implements special rules within a consistant multitenant network.
+ * A user should be matched against username and idnumber, potentially registered
+ * from another mnethostid. 
+ * In case the currently calling mnethostid is a primary assignation, and the local register,
+ * is NOT, then the local account should be fixed for reflecting this identity.
+ * If not, leave the mnethostid intact, but use this acocunt for the roaming session.
+ * @param object $remoteuser a remote user record landing on moodle
+ * @param object $remotehost the remote host known peer.
+ */
+function user_mnet_hosts_get_local_user($remoteuser, $remotehost) {
+    global $DB;
+
+    // debug_trace("Check 'username' => $remoteuser->username, 'idnumber' => $remoteuser->idnumber ");
+    if ($localuser = $DB->get_record('user', array('username' => $remoteuser->username, 'idnumber' => $remoteuser->idnumber))) {
+        if ($remoteuser->profile_field_isprimaryassignation && (($localuser->auth == 'mnet') || ($localuser->auth == 'multimnet'))) {
+            $localuser->mnethostid = $remotehost->id;
+        }
+
+        return $localuser;
+    }
 }
