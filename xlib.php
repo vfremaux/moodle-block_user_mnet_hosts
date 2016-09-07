@@ -24,7 +24,6 @@ defined('MOODLE_INTERNAL') || die();
  * @version Moodle 2.x
  *
  */
-
 require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 
 /**
@@ -64,9 +63,7 @@ function user_mnet_hosts_add_access($user, $wwwroot) {
         return 'Add access error : empty user';
     }
 
-    preg_match('/https?:\/\/([^.]*)/', $wwwroot, $matches);
-    $hostprefix = $matches[1];
-    $hostfieldname = 'access'.str_replace('-', '', strtoupper($hostprefix)); // Need cleaning name from hyphens.
+    $hostfieldname = user_mnet_hosts_make_accesskey($wwwroot, false);
     if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))) {
         if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))) {
             $accessrec->data = 1;

@@ -17,10 +17,10 @@
 /**
  * Version details
  *
- * @category    blocks
- * @package     block_user_mnet_hosts
- * @copyright   2013 Valery Fremaux (valery.fremaux@gmail.com)
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @category   blocks
+ * @package    block_user_mnet_hosts
+ * @copyright  2013 Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
