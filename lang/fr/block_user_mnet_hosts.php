@@ -29,12 +29,13 @@ $string['admintitle'] = 'Définir les champs d\'accès aux pairs du réseau';
 $string['backsettings'] = 'Revenir à la page de réglage';
 $string['configaccesssource'] = 'Origine des définitions d\'hôtes';
 $string['configaccesssource_desc'] = 'Choisit à partir de quelle source de données le bloc constitue sa liste d\'hôtes à contrôler par des champs d\'accès.';
-$string['configlocaladminoverride'] = 'L\'administrateur local peut traverser';
-$string['configlocaladminoverride_desc'] = 'Si non marqué, l\'administrateur local "admin" reste contraint dans le site local (conseillé).';
+$string['configdisablemnetimportfilter'] = 'Désactiver les filtres d\'import MNET';
 $string['configdisplaylimit'] = 'Limite d\'affichage';
 $string['configdisplaylimit_desc'] = 'Définit le nombre maximum de liens à afficher avant de demander le filtrage.';
 $string['configkeydeepness'] = 'Profondeur du nom du champ d\'accès';
 $string['configkeydeepness_desc'] = 'Le nombre de tokens du nom de domaine utilisés pour forger le nom du champ d\'accès et le libellé.';
+$string['configlocaladminoverride'] = 'L\'administrateur local peut traverser';
+$string['configlocaladminoverride_desc'] = 'Si non marqué, l\'administrateur local "admin" reste contraint dans le site local (conseillé).';
 $string['configmaharapassthru'] = 'Libre accès Mahara';
 $string['configmaharapassthru_desc'] = 'Si activé, tout utilisateur du réseau Moodle pourra suivre les liens vers les Mahara enregistrés. Sinon le contrôle d\'accès sur champ de profil est encore actif pour les sites Mahara.';
 $string['configsingleaccountcheck'] = 'Identité MNET unique';
@@ -53,6 +54,7 @@ $string['mnetaccess_name'] = 'Contrôle d\'accès MNET';
 $string['mnetaccess_service_description'] = 'Un service permettant de vérifier les droits d\'accès sur un noeud distant';
 $string['mnetaccess_service_name'] = 'Conrôle d\'accès MNET';
 $string['mnetbehaviour'] = 'Comportement du réseau MNET';
+$string['mnetmodifiers'] = 'Modificateur du réseau MNET';
 $string['mnetsource'] = 'Prendre les hôtes MNET actifs';
 $string['nohostsforyou'] = 'Aucun hôte disponible';
 $string['pluginname'] = 'Controle d\'acces réseau';
@@ -65,8 +67,7 @@ $string['usefiltertoreduce'] = '... autres hôtes non visibles. Réduire avec le
 $string['user_mnet_hosts'] = 'Mes sites du réseau';
 $string['vmoodleandmnetsource'] = 'Prendre les définitions VMoodle actives, et ajouter les hôtes mnet supplémentaires.';
 $string['vmoodlesource'] = 'Prendre les définitions VMoodle actives';
-$string['mnetmodifiers'] = 'Modificateur du réseau MNET';
-$string['configdisablemnetimportfilter'] = 'Désactiver les filtres d\'import MNET';
+
 $string['configdisablemnetimportfilter_desc'] = 'Dans un moodle standard, la transmission par MNET des attributs de profil est limitée et filtrée. Dans un réseau augmenté, 
 il est nécessaire de désactiver ce filtrage pour que les profils soient intégralement synchronisés. Ce réglage active le \'hack\' dans le module auth/mnet/auth.php. 
 Ce comportement est naturellement supprimé dans l\'authentification multimnet (réseau total).';
