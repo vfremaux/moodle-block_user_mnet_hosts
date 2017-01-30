@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * XLIB contains interface function for peer moodle components
  *
@@ -25,6 +23,8 @@ defined('MOODLE_INTERNAL') || die();
  * @version Moodle 2.x
  *
  */
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 
 /**
