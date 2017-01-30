@@ -15,23 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Version details.
  *
- * @category   blocks
- * @package    block_user_mnet_hosts
- * @copyright  2013 Valery Fremaux (valery.fremaux@gmail.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @category    blocks
+ * @package     block_user_mnet_hosts
+ * @author      Valery Fremaux (valery.fremaux@gmeil.com)
+ * @copyright   2013 onwards Valery Fremaux (valery.fremaux@gmeil.com)
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016090500;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2015050500;        // Requires this Moodle version (2.4)
-$plugin->component = 'block_user_mnet_hosts'; // Full name of the plugin (used for diagnostics)
+$plugin->version   = 2016090500;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2015050500;        // Requires this Moodle version.
+$plugin->component = 'block_user_mnet_hosts'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = "2.9.0 (Build 2016090500)";
+$plugin->release = '2.9.0 (Build 2016090500)';
 
-// Non Moodle fields
-// This fields will help overmanagement code builders without forcing upgrade to play
-$plugin->codeversion = 2016090500.00;
-$plugin->codeincrement = 0;
+// Non moodle attributes.
+$plugin->codeincrement = '2.9.0000';

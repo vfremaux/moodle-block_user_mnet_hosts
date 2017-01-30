@@ -20,6 +20,7 @@ defined('MOODLE_INTERNAL') || die();
  * XLIB contains interface function for peer moodle components
  *
  * @package block_user_mnet_hosts
+ * @category blocks
  * @author Valery Fremaux
  * @version Moodle 2.x
  *
@@ -67,21 +68,15 @@ function user_mnet_hosts_add_access($user, $wwwroot) {
     if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))) {
         if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))) {
             $accessrec->data = 1;
-            if (!$DB->update_record('user_info_data', $accessrec)) {
-                return "Access Update Failure for $user->username on $wwwroot with $hostfieldname";
-            } else {
-                return "Add access : updated for $user->username on $wwwroot with $hostfieldname";
-            }
+            $DB->update_record('user_info_data', $accessrec);
+            return "Add access : updated for $user->username on $wwwroot with $hostfieldname";
         } else {
             $accessrec = new StdClass();
             $accessrec->fieldid = $userfield->id;
             $accessrec->userid = $user->id;
             $accessrec->data = 1;
-            if (!$DB->insert_record('user_info_data', $accessrec)) {
-                return "Access Update Failure  for $user->username on $wwwroot with $hostfieldname";
-            } else {
-                return "Add access : granted for $user->username on $wwwroot with $hostfieldname";
-            }
+            $DB->insert_record('user_info_data', $accessrec);
+            return "Add access : granted for $user->username on $wwwroot with $hostfieldname";
         }
     } else {
         return "Add access error : unknown field $hostfieldname";
