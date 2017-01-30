@@ -18,7 +18,7 @@ $string['user_mnet_hosts:myaddinstance'] = 'Can add instance to my pages';
 $string['user_mnet_hosts:addinstance'] = 'Can add instance';
 $string['user_mnet_hosts:accessall'] = 'Can access all nodes';
 
-$string['accesscategory'] = 'Category name:';
+$string['accesscategory'] = 'Network control access fields';
 $string['accesscategory_desc'] = 'Category name for access user fields';
 $string['accesscategorydefault'] = 'Access switches for network sites ';
 $string['accessfieldname'] = 'acces{$a}';
