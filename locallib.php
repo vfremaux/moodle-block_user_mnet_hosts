@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * @package     block_user_mnet_hosts
  * @category    blocks
@@ -23,6 +21,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author      Valery Fremaux (valery.fremaux@gmail.com)
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL
  */
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Given a host name, builds properly an access filed name and access field label (fullname)
@@ -36,13 +35,13 @@ function user_mnet_hosts_make_accesskey($wwwroot, $full = false) {
     $accesskey = preg_replace('/https?:\/\//', '', $wwwroot);
 
     if (!$full) {
-        // filter if token
+        // Filter if token.
         $accesskey = str_replace('-', '', $accesskey);
     }
     $accesskeyparts = explode('.', $accesskey);
 
     $keytokens = array();
-    for ($i = 0 ; $i < $deepness ; $i++) {
+    for ($i = 0; $i < $deepness; $i++) {
         $keytokens[] = array_shift($accesskeyparts);
     }
 
@@ -99,15 +98,15 @@ function user_mnet_hosts_set_access($userid, $access, $wwwroot = null) {
 function user_mnet_hosts_get_hosts() {
     global $DB, $CFG;
 
-    // get the hosts and whether we are doing SSO with them
+    // Get the hosts and whether we are doing SSO with them.
     $sql = "
-        SELECT DISTINCT 
-            h.id, 
+        SELECT DISTINCT
+            h.id,
             h.name,
             h.wwwroot,
             a.name as application,
             a.display_name
-        FROM 
+        FROM
             {mnet_host} h,
             {mnet_application} a,
             {mnet_host2service} h2s_IDP,
@@ -137,12 +136,13 @@ function user_mnet_hosts_get_hosts() {
 function user_mnet_hosts_get_access_fields() {
     global $DB, $USER;
 
-    // if mnet access profile does not exist, setup profile
+    // If mnet access profile does not exist, setup profile.
     if (!$DB->get_records_select('user_info_field', " name LIKE 'access%' ")) {
-       // TODO : Initialize mnetaccess profile data
+        // TODO : Initialize mnetaccess profile data.
+        assert(1);
     }
 
-    // get user profile fields for access to hosts
+    // Get user profile fields for access to hosts.
     $sql = "
         SELECT
             uif.shortname,
@@ -156,16 +156,16 @@ function user_mnet_hosts_get_access_fields() {
             uif.shortname LIKE 'access%'
     ";
 
-    $mnet_accesses = array();
+    $mnetaccesses = array();
 
     if ($usermnetaccessfields = $DB->get_records_sql_menu($sql, array($USER->id))) {
-        foreach($usermnetaccessfields as $key => $datum) {
+        foreach ($usermnetaccessfields as $key => $datum) {
             $key = str_replace('access', '', $key);
-            $mnet_accesses[str_replace('-', '', strtolower($key))] = str_replace('-', '', $datum);
+            $mnetaccesses[str_replace('-', '', strtolower($key))] = str_replace('-', '', $datum);
         }
     }
 
-    return $mnet_accesses;
+    return $mnetaccesses;
 }
 
 /**
@@ -183,9 +183,9 @@ function user_mnet_hosts_get_access_fields() {
 function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host') {
     global $CFG, $DB;
 
-    $expectedself = user_mnet_hosts_make_accesskey($CFG->wwwroot, false); // need cleaning name from hyphens
+    $expectedself = user_mnet_hosts_make_accesskey($CFG->wwwroot, false); // Need cleaning name from hyphens.
 
-    // if typical user field category does exist, make some for us.
+    // If typical user field category does exist, make some for us.
     if (!isset($CFG->accesscategory)) {
         $accesscategory = new stdClass;
         $accesscategory->name = get_string('accesscategorydefault', 'block_user_mnet_hosts');
@@ -197,24 +197,26 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
     // We are going to get all non-deleted hosts from our database.
     if ($source == 'mnet_host') {
         $knownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot');
-    } elseif ($source == 'block_vmoodle') {
+    } else if ($source == 'block_vmoodle') {
         $knownhosts = $DB->get_records('block_vmoodle', array('enabled' => 1), '', 'id,vhostname AS wwwroot');
     } else {
         $knownhosts = $DB->get_records('block_vmoodle', array('enabled' => 1), '', 'id,vhostname AS wwwroot');
         if ($mnetknownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot')) {
             foreach ($mnetknownhosts as $mhid => $mh) {
-                if (empty($mh->wwwroot)) continue;
+                if (empty($mh->wwwroot)) {
+                    continue;
+                }
                 // Only add those who are not in vmoodle register.
                 if (!$DB->record_exists('block_vmoodle', array('vhostname' => $mh->wwwroot))) {
                     // Securise that id do not overlap.
-                    $knownhosts[1000+$mhid] = $mh;
+                    $knownhosts[1000 + $mhid] = $mh;
                 }
             }
         }
     }
 
     // Then we get all accessfields.
-    $accessfields = $DB->get_records_select('user_info_field'," shortname LIKE 'access%' ", array());
+    $accessfields = $DB->get_records_select('user_info_field', " shortname LIKE 'access%' ", array());
 
     // We create local variables to monitor the actions.
     $created = 0;
@@ -229,13 +231,13 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
             continue;
         }
 
-        $expectedfieldname = user_mnet_hosts_make_accesskey($host->wwwroot, false); // need cleaning name from hyphens
+        $expectedfieldname = user_mnet_hosts_make_accesskey($host->wwwroot, false); // Need cleaning name from hyphens.
         $hostkey = user_mnet_hosts_make_accesskey($host->wwwroot, true);
         $results = false;
 
         if ($accessfields) {
             foreach ($accessfields as $field) {
-                //If we have a match, we do have the field, we can skip the host
+                // If we have a match, we do have the field, we can skip the host.
                 if ($field->shortname == $expectedfieldname) {
                     $results = true;
                     $ignored++;
@@ -265,15 +267,17 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
     }
 
     if ($withcleanup) {
-        // Finally cleanup all fields and data not matching hosts
+        // Finally cleanup all fields and data not matching hosts.
         if (!empty($validnames)) {
             list ($insql, $inparams) = $DB->get_in_or_equal($validnames, SQL_PARAMS_QM, 'param', false);
             $alltodeletefields = $DB->get_records_select('user_info_field', " shortname LIKE 'access%' AND shortname $insql ", $inparams);
             if (!empty($alltodeletefields)) {
-                foreach($alltodeletefields as $f) {
+                foreach ($alltodeletefields as $f) {
 
                     // Protect ourself.
-                    if ($f->shortname == $expectedself) continue;
+                    if ($f->shortname == $expectedself) {
+                        continue;
+                    }
 
                     if (defined('CLI_SCRIPT')) {
                         mtrace('Deleting access field '.$f->shortname);
@@ -286,7 +290,7 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
         }
     }
 
-    // Tag all local users for localhost field
+    // Tag all local users for localhost field.
     $thishostfieldname = user_mnet_hosts_make_accesskey($CFG->wwwroot, false);
     $thishostfield = $DB->get_record('user_info_field', array('shortname' => $thishostfieldname));
     if ($thishostfield) {
