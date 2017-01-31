@@ -28,15 +28,15 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 
 /**
-*
-*/
+ *
+ */
 function user_mnet_hosts_get_accesskey($wwwroot, $full = false) {
     return user_mnet_hosts_make_accesskey($wwwroot, $full);
 }
 
-// Wrappers from older versions
+// Wrappers from older versions.
 function user_mnet_host_add_access($user, $wwwroot) {
-   return user_mnet_hosts_add_access($user, $wwwroot);
+    return user_mnet_hosts_add_access($user, $wwwroot);
 }
 function user_mnet_host_remove_access($user, $wwwroot) {
     return user_mnet_hosts_remove_access($user, $wwwroot);
@@ -44,7 +44,6 @@ function user_mnet_host_remove_access($user, $wwwroot) {
 function user_mnet_host_read_access($user, $wwwroot) {
     return user_mnet_hosts_read_access($user, $wwwroot);
 }
-
 
 /**
  * grants a user access to a platform in his profile customized data.
@@ -66,7 +65,8 @@ function user_mnet_hosts_add_access($user, $wwwroot) {
 
     $hostfieldname = user_mnet_hosts_make_accesskey($wwwroot, false);
     if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))) {
-        if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))) {
+        $params = array('fieldid' => $userfield->id, 'userid' => $user->id);
+        if ($accessrec = $DB->get_record('user_info_data', $params)) {
             $accessrec->data = 1;
             $DB->update_record('user_info_data', $accessrec);
             return "Add access : updated for $user->username on $wwwroot with $hostfieldname";
@@ -109,7 +109,8 @@ function user_mnet_hosts_remove_access($user, $wwwroot) {
 
     $hostfieldname = user_mnet_hosts_make_accesskey($wwwroot, false);
     if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))) {
-        if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))) {
+        $params = array('fieldid' => $userfield->id, 'userid' => $user->id);
+        if ($accessrec = $DB->get_record('user_info_data', $params)) {
             $accessrec->value = 0;
             $DB->update_record('user_info_data', $accessrec);
         } else {
@@ -151,7 +152,8 @@ function user_mnet_hosts_read_access($user, $wwwroot) {
 
     $hostfieldname = user_mnet_hosts_make_accesskey($wwwroot, false);
     if ($userfield = $DB->get_record('user_info_field', array('shortname' => $hostfieldname))) {
-        if ($accessrec = $DB->get_record('user_info_data', array('fieldid' => $userfield->id, 'userid' => $user->id))) {
+        $params = array('fieldid' => $userfield->id, 'userid' => $user->id);
+        if ($accessrec = $DB->get_record('user_info_data', $params)) {
             return $accessrec->data;
         }
     }
@@ -164,7 +166,7 @@ function user_mnet_hosts_read_group_access($groupid, $wwwroot) {
 /**
  * Implements special rules within a consistant multitenant network.
  * A user should be matched against username and idnumber, potentially registered
- * from another mnethostid. 
+ * from another mnethostid.
  * In case the currently calling mnethostid is a primary assignation, and the local register,
  * is NOT, then the local account should be fixed for reflecting this identity.
  * If not, leave the mnethostid intact, but use this acocunt for the roaming session.
@@ -174,9 +176,11 @@ function user_mnet_hosts_read_group_access($groupid, $wwwroot) {
 function user_mnet_hosts_get_local_user($remoteuser, $remotehost) {
     global $DB;
 
-    // debug_trace("Check 'username' => $remoteuser->username, 'idnumber' => $remoteuser->idnumber ");
-    if ($localuser = $DB->get_record('user', array('username' => $remoteuser->username, 'idnumber' => $remoteuser->idnumber))) {
-        if ($remoteuser->profile_field_isprimaryassignation && (($localuser->auth == 'mnet') || ($localuser->auth == 'multimnet'))) {
+    $params = array('username' => $remoteuser->username, 'idnumber' => $remoteuser->idnumber);
+    if ($localuser = $DB->get_record('user', $params)) {
+        if ($remoteuser->profile_field_isprimaryassignation &&
+                (($localuser->auth == 'mnet') ||
+                        ($localuser->auth == 'multimnet'))) {
             $localuser->mnethostid = $remotehost->id;
         }
 

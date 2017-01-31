@@ -15,13 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* adds a user profile fields category and registers it for access control
-*
-*/
+ * @package     block_user_mnet_hosts
+ * @category    blocks
+ * @author      Edouard Poncelet
+ * @author      Valery Fremaux (valery.fremaux@gmail.com)
+ * @copyright   2008 Valery Fremaux
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * adds a user profile fields category and registers it for access control
+ *
+ */
 function xmldb_block_user_mnet_hosts_install() {
     global $DB, $CFG;
 
-    // if typical user field category does exist, make some for us
+    // If typical user field category does exist, make some for us.
     if (!isset($CFG->accesscategory)) {
         $accesscategory = new stdClass;
         $accesscategory->name = get_string('accesscategorydefault', 'block_user_mnet_hosts');
@@ -30,7 +40,7 @@ function xmldb_block_user_mnet_hosts_install() {
         set_config('accesscategory', $id);
     }
 
-    //  Create a field for ourself.
+    // Create a field for ourself.
     $thishostlabel = user_mnet_hosts_make_accesskey($CFG->wwwroot, true);
     $thishostfield = user_mnet_hosts_make_accesskey($CFG->wwwroot, false);
     if (!$DB->get_record('user_info_field', array('shortname' => $thishostfield))) {
