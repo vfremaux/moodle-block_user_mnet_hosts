@@ -50,5 +50,8 @@ $settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/singleacc
 $settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/localadminoverride', get_string('configlocaladminoverride', 'block_user_mnet_hosts'),
        get_string('configlocaladminoverride_desc', 'block_user_mnet_hosts'), 0));
 
+$settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/newwindow', get_string('confignewwindow', 'block_user_mnet_hosts'),
+       get_string('confignewwindow_desc', 'block_user_mnet_hosts'), 0));
+
 $settings->add(new admin_setting_configcheckbox('disablemnetimportfilter', get_string('configdisablemnetimportfilter', 'block_user_mnet_hosts'),
        get_string('configdisablemnetimportfilter_desc', 'block_user_mnet_hosts'), 1));

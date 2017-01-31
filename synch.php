@@ -24,7 +24,6 @@
  * @package block_user_mnet_hosts
  * @author E.Poncelet
  * @version 2.0
- *
  */
 
 require('../../config.php');
@@ -32,7 +31,7 @@ require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 
 $context = context_system::instance();
 
-// only for admins
+// Only for admins.
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 
@@ -62,7 +61,8 @@ echo(get_string('failedfields', 'block_user_mnet_hosts').$failed.'<br/>');
 echo $OUTPUT->box_end();
 
 echo('<div class="Button" align="center">');
-echo $OUTPUT->single_button(new moodle_url('/blocks/user_mnet_hosts/admin.php'), get_string('backsettings','block_user_mnet_hosts'), 'get');
+$buttonurl = new moodle_url('/blocks/user_mnet_hosts/admin.php');
+echo $OUTPUT->single_button($buttonurl, get_string('backsettings','block_user_mnet_hosts'), 'get');
 echo('</div>');
 
 echo $OUTPUT->footer($COURSE);

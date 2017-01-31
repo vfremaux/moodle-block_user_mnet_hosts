@@ -16,6 +16,8 @@
 // The commands in here will all be database-neutral,
 // using the functions defined in lib/ddllib.php
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot.'/blocks/user_mnet_hosts/db/install.php');
 
 function xmldb_block_user_mnet_hosts_upgrade($oldversion = 0) {
@@ -26,12 +28,12 @@ function xmldb_block_user_mnet_hosts_upgrade($oldversion = 0) {
     if ($oldversion < 2016051001) {
         xmldb_block_user_mnet_hosts_install();
 
-        /// customlabel savepoint reached
+        // Customlabel savepoint reached.
         upgrade_block_savepoint($result, 2016051001, 'user_mnet_hosts');
     }
 
     if ($oldversion < 2016051500) {
-        // Converts old values of config to new component scope config
+        // Converts old values of config to new component scope config.
         $globalkeys = $DB->get_records_select('config', " name LIKE 'block_u_m_h%' ");
         if ($globalkeys) {
             foreach ($globalkeys as $keyid => $key) {
@@ -42,7 +44,8 @@ function xmldb_block_user_mnet_hosts_upgrade($oldversion = 0) {
                 $newconf->plugin = 'block_user_mnet_hosts';
                 $newconf->name = $configkey;
                 $newconf->value = $CFG->$oldkey;
-                if (!$DB->record_exists('config_plugins', array('plugin' => 'block_user_mnet_hosts', 'name' => $configkey))) {
+                $params = array('plugin' => 'block_user_mnet_hosts', 'name' => $configkey);
+                if (!$DB->record_exists('config_plugins', $params)) {
                     $DB->insert_record('config_plugins', $newconf);
                     set_config($key->name, null);
                 }

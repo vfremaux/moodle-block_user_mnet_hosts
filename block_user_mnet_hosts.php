@@ -14,34 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
- * @package block_user_mnet_hosts
- * @category  blocks
- * @author Edouard Poncelet
- * @author  Valery Fremaux (valery.fremaux@gmail.com)
- * @copyright  2008 Valery Fremaux
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     block_user_mnet_hosts
+ * @category    blocks
+ * @author      Edouard Poncelet
+ * @author      Valery Fremaux (valery.fremaux@gmail.com)
+ * @copyright   2008 Valery Fremaux
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 
 class block_user_mnet_hosts extends block_list {
 
-    function init() {
+    public function init() {
         $this->title = get_string('user_mnet_hosts', 'block_user_mnet_hosts') ;
     }
 
-    function has_config() {
+    public function has_config() {
         return true;
     }
 
-    function applicable_formats() {
+    public function applicable_formats() {
         return array('all' => true, 'mod' => false, 'tag' => false, 'my' => true);
     }
 
-    function get_content() {
+    public function get_content() {
         global $THEME, $CFG, $USER, $PAGE, $OUTPUT, $DB, $SESSION, $COURSE;
 
         $config = get_config('block_user_mnet_hosts');
@@ -74,7 +73,7 @@ class block_user_mnet_hosts extends block_list {
         $systemcontext = context_system::instance();
 
         // Check for outgoing roaming permission first.
-        if (!has_capability('moodle/site:mnetlogintoremote', $systemcontext, NULL, false)) {
+        if (!has_capability('moodle/site:mnetlogintoremote', $systemcontext, null, false)) {
             if (has_capability('moodle/site:config', $systemcontext)) {
                 $this->content = new StdClass();
                 $this->content->footer = get_string('errornocapacitytologremote', 'block_user_mnet_hosts');
@@ -111,7 +110,7 @@ class block_user_mnet_hosts extends block_list {
                     }
                 }
 
-                // i all hosts / j visible only
+                // Loop control : i all hosts / j visible only.
                 $j++;
                 if (($maxhosts > $config->displaylimit) && ($j >= $config->displaylimit)) {
                     if ($i < $maxhosts) {
@@ -125,33 +124,35 @@ class block_user_mnet_hosts extends block_list {
                 $hostaccesskey = strtolower(user_mnet_hosts_make_accesskey($host->wwwroot, false));
 
                 if ($host->application == 'moodle' || empty($config->maharapassthru)) {
-                    if (empty($mnet_accesses[$hostaccesskey]) && !has_capability('block/user_mnet_hosts:accessall', context_system::instance())) {
+                    if (empty($mnet_accesses[$hostaccesskey]) &&
+                            !has_capability('block/user_mnet_hosts:accessall', context_system::instance())) {
                         continue;
                     }
                 }
 
-                $icon  = '<img src="'.$OUTPUT->pix_url('/i/'.$host->application.'_host').'" class="icon" alt="'.get_string('server', 'block_mnet_hosts').'" />';
+                $pixurl = $OUTPUT->pix_url('/i/'.$host->application.'_host');
+                $icon  = '<img src="'.$pixurl.'" class="icon" alt="'.get_string('server', 'block_mnet_hosts').'" />';
 
                 $this->content->icons[] = $icon;
 
                 $cleanname = preg_replace('/^https?:\/\//', '', $host->name);
                 $cleanname = str_replace('.', '', $cleanname);
                 $target = '';
-                if (@$CFG->user_mnet_hosts_new_window) {
-                    $target = " target=\"{$cleanname}\" ";
-                    $target = " target=\"_blank\" ";
+                if ($config->newwindow) {
+                    $target = ' target="'.$cleanname.'" ';
+                    $target = ' target="_blank" ';
                 }
 
                 if ($host->id == $USER->mnethostid) {
-                    $this->content->items[]="<a title=\"" .s($host->name).
-                        "\" href=\"{$host->wwwroot}\" $target >". s($host->name) ."</a>";
+                    $this->content->items[] = '<a title="'.s($host->name).'"
+                                                  href="'.$host->wwwroot.'" '.$target.'>'.s($host->name).'</a>';
                 } else {
                     if (is_enabled_auth('multimnet')) {
-                        $this->content->items[]="<a title=\"" .s($host->name).
-                            "\" href=\"javascript:multijump('$CFG->wwwroot','$host->id')\">" . s($host->name) ."</a>";
+                        $jshandler = 'javascript:multijump(\''$CFG->wwwroot'\','.$host->id.');';
+                        $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.s($host->name).'</a>';
                     } else {
-                        $this->content->items[]="<a title=\"" .s($host->name).
-                            "\" href=\"javascript:standardjump('$CFG->wwwroot','$host->id')\">" . s($host->name) ."</a>";
+                        $jshandler = 'javascript:standardjump(\''$CFG->wwwroot'\','.$host->id.');';
+                        $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.s($host->name).'</a>';
                     }
                 }
             }
@@ -162,14 +163,14 @@ class block_user_mnet_hosts extends block_list {
             $footer = '<form name="umhfilterform" action="#">';
             $footer .= '<input type="hidden" name="id" value="'.$COURSE->id.'" />';
             $footer .= '<input class="form-minify" type="text" name="umhfilter" value="'.(@$SESSION->umhfilter).'" />';
-            $footer .= '<input class="form-minify" type="submit" name="go" value="'.get_string('filter', 'block_user_mnet_hosts').'" />';
+            $filterstr = get_string('filter', 'block_user_mnet_hosts');
+            $footer .= '<input class="form-minify" type="submit" name="go" value="'.$filterstr.'" />';
             $footer .= '</form>';
             $this->content->footer = $footer;
         }
         return $this->content;
     }
 
-    // RPC dedicated functions
     /**
      * checks locally if an incoming user has remote provision to come in  
      * Call needs to be hooked on "login" access (and mnet landing) to
@@ -182,8 +183,7 @@ class block_user_mnet_hosts extends block_list {
      * TODO : implement this security check.
      * Register it
      */
-    
-    function remote_user_mnet_check($remoteuser, $fromwwwwroot) {
+    public function remote_user_mnet_check($remoteuser, $fromwwwwroot) {
     }
 }
 

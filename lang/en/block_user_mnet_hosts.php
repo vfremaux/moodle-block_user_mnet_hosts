@@ -35,9 +35,7 @@ $string['configdisplaylimit_desc'] = 'Set the max number of links that can be sh
 $string['configkeydeepness'] = 'Access Key Deepness';
 $string['configkeydeepness_desc'] = 'The number of tokens that will be pulled from the domain name to buid the access key and site label.';
 $string['configmaharapassthru'] = 'Mahara pass through';
-$string['configmaharapassthru_desc'] = 'If enabled, all mnet activated users can pass to any registered Mahara site. If disabled, profile field base validation is active even for Mahara sites.';
 $string['configsingleaccountcheck'] = 'Single MNET identity';
-$string['configsingleaccountcheck_desc'] = 'This setting activates an additional check in auth/mnet plugin ensuring an identity has a unique account either local or MNET into a Moodle.';
 $string['createdfields'] = 'Number of fields successfully created: ';
 $string['dosync'] = 'Synchronize access fields';
 $string['display'] = 'Display';
@@ -49,7 +47,6 @@ $string['fieldkey'] = 'Field short name';
 $string['fieldname'] = 'Access to platform ';
 $string['filter'] = 'Filter';
 $string['ignoredfields'] = 'Number of hosts ignored: ';
-$string['mnetaccess_description'] = 'A service to allow remote hosts to check user access based on profile markers';
 $string['mnetaccess_description'] = 'If published to a remote Moodle, this will allow the remote moodle to ask for local access. If subcribed by moodle, this allows asking a remote moodle for access check.';
 $string['mnetaccess_name'] = 'Mnet Access Service';
 $string['mnetaccess_service_description'] = 'A service to allow remote hosts to check user access based on profile markers';
@@ -68,9 +65,25 @@ $string['user_mnet_hosts'] = 'My Moodle hosts';
 $string['vmoodleandmnetsource'] = 'Use active VMoodle registry, and added by active mnet hosts.';
 $string['vmoodlesource'] = 'Use active VMoodle registry';
 $string['mnetmodifiers'] = 'Mnet Behaviour Modifiers';
+$string['newwindow'] = 'New window';
+$string['newwindow_desc'] = 'If enabled, the target of the navigation will open in a new window.';
 $string['configdisablemnetimportfilter'] = 'Disable mnet import filters';
-$string['configdisablemnetimportfilter_desc'] = 'In standard moodle, mnet attributes transmission are hardly filtered in mnet auth exchanges. In enhanced mnet, attributes transmission need to be enriched. This setting will activate the hack of auth/mnet/auth.php that goes
-with enhanced networking.';
+
+$string['configmaharapassthru_desc'] = '
+If enabled, all mnet activated users can pass to any registered Mahara site. If disabled, profile field base
+validation is active even for Mahara sites.
+';
+
+$string['configdisablemnetimportfilter_desc'] = '
+In standard moodle, mnet attributes transmission are hardly filtered in mnet auth exchanges. In enhanced mnet,
+attributes transmission need to be enriched. This setting will activate the hack of auth/mnet/auth.php that goes
+with enhanced networking.
+';
+
+$string['configsingleaccountcheck_desc'] = '
+This setting activates an additional check in auth/mnet plugin ensuring an identity has a unique account either
+local or MNET into a Moodle.
+';
 
 $string['resync_help'] = '
 <h2>Controlled roaming in MNET</h2>
@@ -83,4 +96,3 @@ node in the network.</p>
 The format of those fields has to follow specified rules. This script will facilitate the
 setup of required fields by exploring the accessible network.</p>
 ';
-
