@@ -90,9 +90,9 @@ $string['resync_help'] = '
 <h3>Resynchroniation of access control fields</h3>
 
 <p>To ensure users can roam properly between nodes and be able to control
-the accesses, each user needs to be marked in his profile for each accessible 
+the accesses, each user needs to be marked in his profile for each accessible
 node in the network.</p>
-<p>Those marks are custom profile fields that will be added to the general user profile. 
+<p>Those marks are custom profile fields that will be added to the general user profile.
 The format of those fields has to follow specified rules. This script will facilitate the
 setup of required fields by exploring the accessible network.</p>
 ';

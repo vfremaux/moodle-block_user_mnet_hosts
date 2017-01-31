@@ -36,7 +36,7 @@ function user_mnet_hosts_get_accesskey($wwwroot, $full = false) {
 
 // Wrappers from older versions.
 function user_mnet_host_add_access($user, $wwwroot) {
-   return user_mnet_hosts_add_access($user, $wwwroot);
+    return user_mnet_hosts_add_access($user, $wwwroot);
 }
 function user_mnet_host_remove_access($user, $wwwroot) {
     return user_mnet_hosts_remove_access($user, $wwwroot);
@@ -166,7 +166,7 @@ function user_mnet_hosts_read_group_access($groupid, $wwwroot) {
 /**
  * Implements special rules within a consistant multitenant network.
  * A user should be matched against username and idnumber, potentially registered
- * from another mnethostid. 
+ * from another mnethostid.
  * In case the currently calling mnethostid is a primary assignation, and the local register,
  * is NOT, then the local account should be fixed for reflecting this identity.
  * If not, leave the mnethostid intact, but use this acocunt for the roaming session.

@@ -29,7 +29,7 @@ require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 class block_user_mnet_hosts extends block_list {
 
     public function init() {
-        $this->title = get_string('user_mnet_hosts', 'block_user_mnet_hosts') ;
+        $this->title = get_string('user_mnet_hosts', 'block_user_mnet_hosts');
     }
 
     public function has_config() {
@@ -86,7 +86,7 @@ class block_user_mnet_hosts extends block_list {
         }
 
         $hosts = user_mnet_hosts_get_hosts();
-        $mnet_accesses = user_mnet_hosts_get_access_fields();
+        $mnetaccesses = user_mnet_hosts_get_access_fields();
 
         $this->content = new StdClass();
         $this->content->items = array();
@@ -124,7 +124,7 @@ class block_user_mnet_hosts extends block_list {
                 $hostaccesskey = strtolower(user_mnet_hosts_make_accesskey($host->wwwroot, false));
 
                 if ($host->application == 'moodle' || empty($config->maharapassthru)) {
-                    if (empty($mnet_accesses[$hostaccesskey]) &&
+                    if (empty($mnetaccesses[$hostaccesskey]) &&
                             !has_capability('block/user_mnet_hosts:accessall', context_system::instance())) {
                         continue;
                     }
@@ -148,10 +148,10 @@ class block_user_mnet_hosts extends block_list {
                                                   href="'.$host->wwwroot.'" '.$target.'>'.s($host->name).'</a>';
                 } else {
                     if (is_enabled_auth('multimnet')) {
-                        $jshandler = 'javascript:multijump(\''$CFG->wwwroot'\','.$host->id.');';
+                        $jshandler = 'javascript:multijump(\''.$CFG->wwwroot.'\','.$host->id.');';
                         $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.s($host->name).'</a>';
                     } else {
-                        $jshandler = 'javascript:standardjump(\''$CFG->wwwroot'\','.$host->id.');';
+                        $jshandler = 'javascript:standardjump(\''.$CFG->wwwroot.'\','.$host->id.');';
                         $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.s($host->name).'</a>';
                     }
                 }
@@ -172,7 +172,7 @@ class block_user_mnet_hosts extends block_list {
     }
 
     /**
-     * checks locally if an incoming user has remote provision to come in  
+     * checks locally if an incoming user has remote provision to come in
      * Call needs to be hooked on "login" access (and mnet landing) to
      * avoid back door effect.
      * Called by : the landing node

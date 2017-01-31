@@ -71,7 +71,7 @@ $string['newwindow_desc'] = 'Si actif, la navigation s\'effectuera dans une autr
 $string['vmoodlesource'] = 'Prendre les définitions VMoodle actives';
 
 $string['configdisablemnetimportfilter_desc'] = '
-Dans un moodle standard, la transmission par MNET des attributs de profil est limitée et filtrée. Dans un réseau augmenté, 
+Dans un moodle standard, la transmission par MNET des attributs de profil est limitée et filtrée. Dans un réseau augmenté,
 il est nécessaire de désactiver ce filtrage pour que les profils soient intégralement synchronisés. Ce réglage active le
 \'hack\' dans le module auth/mnet/auth.php. Ce comportement est naturellement supprimé dans l\'authentification multimnet
 (réseau total).

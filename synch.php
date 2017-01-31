@@ -35,8 +35,8 @@ $context = context_system::instance();
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 
-$full = get_string('syncfull','block_user_mnet_hosts');
-$short = get_string('syncshort','block_user_mnet_hosts');
+$full = get_string('syncfull', 'block_user_mnet_hosts');
+$short = get_string('syncshort', 'block_user_mnet_hosts');
 
 $url = new moodle_url('/blocks/user_mnet_hosts/sync.php');
 
@@ -62,7 +62,7 @@ echo $OUTPUT->box_end();
 
 echo('<div class="Button" align="center">');
 $buttonurl = new moodle_url('/blocks/user_mnet_hosts/admin.php');
-echo $OUTPUT->single_button($buttonurl, get_string('backsettings','block_user_mnet_hosts'), 'get');
+echo $OUTPUT->single_button($buttonurl, get_string('backsettings', 'block_user_mnet_hosts'), 'get');
 echo('</div>');
 
 echo $OUTPUT->footer($COURSE);

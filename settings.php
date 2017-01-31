@@ -22,36 +22,56 @@ if (!isset($CFG->accesscategory)) {
 
 $syncstr = get_string('synchonizingaccesses', 'block_user_mnet_hosts');
 
-$settings->add(new admin_setting_heading('synchronization', get_string('synchonizingaccesses', 'block_user_mnet_hosts'), "<a href=\"{$CFG->wwwroot}/blocks/user_mnet_hosts/admin.php\">$syncstr</a>"));
+$label = get_string('synchonizingaccesses', 'block_user_mnet_hosts');
+$html = "<a href=\"{$CFG->wwwroot}/blocks/user_mnet_hosts/admin.php\">$syncstr</a>";
+$settings->add(new admin_setting_heading('synchronization', $label, $html));
 
 $sourceoptions = array('mnet_host' => get_string('mnetsource', 'block_user_mnet_hosts'),
                        'block_vmoodle' => get_string('vmoodlesource', 'block_user_mnet_hosts'),
                        'vmoodle_and_mnet' => get_string('vmoodleandmnetsource', 'block_user_mnet_hosts'));
 
-$settings->add(new admin_setting_configselect('block_user_mnet_hosts/source', get_string('configaccesssource', 'block_user_mnet_hosts'),
-       get_string('configaccesssource_desc', 'block_user_mnet_hosts'), 'mnet_host', $sourceoptions));
+$key = 'block_user_mnet_hosts/source';
+$label = get_string('configaccesssource', 'block_user_mnet_hosts');
+$desc = get_string('configaccesssource_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configselect($key, $label, $desc, 'mnet_host', $sourceoptions));
 
-$settings->add(new admin_setting_configtext('block_user_mnet_hosts/keydeepness', get_string('configkeydeepness', 'block_user_mnet_hosts'),
-       get_string('configkeydeepness_desc', 'block_user_mnet_hosts'), 1, PARAM_INT, 2));
+$key = 'block_user_mnet_hosts/keydeepness';
+$label = get_string('configkeydeepness', 'block_user_mnet_hosts');
+$desc = get_string('configkeydeepness_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configtext($key, $label, $desc, 1, PARAM_INT, 2));
 
-$settings->add(new admin_setting_heading('display', get_string('display', 'block_user_mnet_hosts'), ''));
+$label = get_string('display', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_heading('display', $label, ''));
 
-$settings->add(new admin_setting_configtext('block_user_mnet_hosts/displaylimit', get_string('configdisplaylimit', 'block_user_mnet_hosts'),
-       get_string('configdisplaylimit_desc', 'block_user_mnet_hosts'), 40));
+$key = 'block_user_mnet_hosts/displaylimit';
+$label = get_string('configdisplaylimit', 'block_user_mnet_hosts');
+$desc = get_string('configdisplaylimit_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configtext($key, $label, $desc, 40));
 
-$settings->add(new admin_setting_heading('mnetbehaviour', get_string('mnetbehaviour', 'block_user_mnet_hosts'), ''));
+$label = get_string('mnetbehaviour', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_heading('mnetbehaviour', $label, ''));
 
-$settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/maharapassthru', get_string('configmaharapassthru', 'block_user_mnet_hosts'),
-       get_string('configmaharapassthru_desc', 'block_user_mnet_hosts'), 1));
+$key = 'block_user_mnet_hosts/maharapassthru';
+$label = get_string('configmaharapassthru', 'block_user_mnet_hosts');
+$desc = get_string('configmaharapassthru_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
-$settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/singleaccountcheck', get_string('configsingleaccountcheck', 'block_user_mnet_hosts'),
-       get_string('configsingleaccountcheck_desc', 'block_user_mnet_hosts'), 1));
+$key = 'block_user_mnet_hosts/singleaccountcheck';
+$label = get_string('configsingleaccountcheck', 'block_user_mnet_hosts');
+$desc = get_string('configsingleaccountcheck_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
-$settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/localadminoverride', get_string('configlocaladminoverride', 'block_user_mnet_hosts'),
-       get_string('configlocaladminoverride_desc', 'block_user_mnet_hosts'), 0));
+$key = 'block_user_mnet_hosts/localadminoverride';
+$label = get_string('configlocaladminoverride', 'block_user_mnet_hosts');
+$desc = get_string('configlocaladminoverride_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
-$settings->add(new admin_setting_configcheckbox('block_user_mnet_hosts/newwindow', get_string('confignewwindow', 'block_user_mnet_hosts'),
-       get_string('confignewwindow_desc', 'block_user_mnet_hosts'), 0));
+$key = 'block_user_mnet_hosts/newwindow';
+$label = get_string('confignewwindow', 'block_user_mnet_hosts');
+$desc = get_string('confignewwindow_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
-$settings->add(new admin_setting_configcheckbox('disablemnetimportfilter', get_string('configdisablemnetimportfilter', 'block_user_mnet_hosts'),
-       get_string('configdisablemnetimportfilter_desc', 'block_user_mnet_hosts'), 1));
+$key = 'disablemnetimportfilter';
+$label = get_string('configdisablemnetimportfilter', 'block_user_mnet_hosts');
+$desc = get_string('configdisablemnetimportfilter_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
