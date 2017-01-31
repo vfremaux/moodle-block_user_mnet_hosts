@@ -10,9 +10,9 @@
 // jshint unused:false, undef:false
 
 function multijump(root, platform) {
-    window.location=root + "/auth/multimnet/jump.php?hostid=" + platform;
+    window.location = root + "/auth/multimnet/jump.php?hostid=" + platform;
 }
 
 function standardjump(root, platform) {
-    window.location=root + "/auth/mnet/jump.php?hostid=" + platform;
+    window.location = root + "/auth/mnet/jump.php?hostid=" + platform;
 }
