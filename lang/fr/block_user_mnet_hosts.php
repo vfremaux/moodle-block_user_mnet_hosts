@@ -82,11 +82,11 @@ $string['resync_help'] = '
 <h3>Redéfinition des champs de contrôle d\'accès</h3>
 
 <p>Pour assurer la circulation des utilisateurs entre noeuds du réseau et contrôler
-cette circulation, chaque utilisateur doit disposer d\'une marque lui permettant le 
+cette circulation, chaque utilisateur doit disposer d\'une marque lui permettant le
 passage pour chaque hôte du réseau.</p>
 <p>Ces marques sont constituées par des champs personnalisés du profil utilisateur,
 répondant à une mise en place particulière. Afin de faciliter cette mise en place,
-ce script permet de restaurer automatiquement les attributs du profil manquant, en 
+ce script permet de restaurer automatiquement les attributs du profil manquant, en
 explorant le réseau Moodle de confiance.</p>
 ';
 
