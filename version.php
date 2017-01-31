@@ -17,10 +17,10 @@
 /**
  * Version details.
  *
- * @category    blocks
  * @package     block_user_mnet_hosts
- * @author      Valery Fremaux (valery.fremaux@gmeil.com)
- * @copyright   2013 onwards Valery Fremaux (valery.fremaux@gmeil.com)
+ * @category    blocks
+ * @author      Valery Fremaux <valery.fremaux@gmail.com>
+ * @copyright   2013 Valery Fremaux (http://www.mylearningfactory.com)
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

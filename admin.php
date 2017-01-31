@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package block_user_mnet_hosts
- * @category  blocks
- * @author Edouard Poncelet
- * @author  Valery Fremaux (valery.fremaux@gmail.com)
- * @copyright  2008 Valery Fremaux
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     block_user_mnet_hosts
+ * @category    blocks
+ * @author      Edouard Poncelet
+ * @author      Valery Fremaux (valery.fremaux@gmail.com)
+ * @copyright   2008 Valery Fremaux
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * This page will be used to manually synchronize hosts fields
  */
@@ -33,7 +33,6 @@ $context = context_system::instance();
 
 require_login();
 require_capability('moodle/site:config', $context);
-
 
 $url = new moodle_url('/blocks/user_mnet_hosts/admin.php');
 
@@ -78,7 +77,8 @@ if ($accessfields) {
 }
 
 echo '<div class="buttonarray" align="center">';
-echo $OUTPUT->single_button(new moodle_url('/blocks/user_mnet_hosts/synch.php'), get_string('dosync', 'block_user_mnet_hosts'), 'get');
+$buttonurl = new moodle_url('/blocks/user_mnet_hosts/synch.php');
+echo $OUTPUT->single_button($buttonurl, get_string('dosync', 'block_user_mnet_hosts'), 'get');
 echo '</div>';
 
 echo $OUTPUT->footer();
