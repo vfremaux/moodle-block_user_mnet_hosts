@@ -7,11 +7,12 @@
  * @param root The current platform adress.
  * @param The platform number to jump to
  */
+// jshint unused:false, undef:false
 
 function multijump(root, platform) {
-    window.location=root+"/auth/multimnet/jump.php?hostid="+platform;
+    window.location = root + "/auth/multimnet/jump.php?hostid=" + platform;
 }
 
 function standardjump(root, platform) {
-    window.location=root+"/auth/mnet/jump.php?hostid="+platform;
+    window.location = root + "/auth/mnet/jump.php?hostid=" + platform;
 }
