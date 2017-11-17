@@ -136,23 +136,23 @@ class block_user_mnet_hosts extends block_list {
                 $this->content->icons[] = $icon;
 
                 $cleanname = preg_replace('/^https?:\/\//', '', $host->name);
+                $cleanname = str_replace(': Se connecter sur le site', '', $cleanname); // special
                 $cleanname = str_replace('.', '', $cleanname);
                 $target = '';
                 if ($config->newwindow) {
-                    $target = ' target="'.$cleanname.'" ';
                     $target = ' target="_blank" ';
                 }
 
                 if ($host->id == $USER->mnethostid) {
                     $this->content->items[] = '<a title="'.s($host->name).'"
-                                                  href="'.$host->wwwroot.'" '.$target.'>'.s($host->name).'</a>';
+                                                  href="'.$host->wwwroot.'" '.$target.'>'.$cleanname.'</a>';
                 } else {
                     if (is_enabled_auth('multimnet')) {
                         $jshandler = 'javascript:multijump(\''.$CFG->wwwroot.'\','.$host->id.');';
-                        $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.s($host->name).'</a>';
+                        $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.$cleanname.'</a>';
                     } else {
                         $jshandler = 'javascript:standardjump(\''.$CFG->wwwroot.'\','.$host->id.');';
-                        $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.s($host->name).'</a>';
+                        $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.$cleanname.'</a>';
                     }
                 }
             }

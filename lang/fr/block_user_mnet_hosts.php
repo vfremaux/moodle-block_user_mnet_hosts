@@ -29,6 +29,8 @@ $string['admintitle'] = 'Définir les champs d\'accès aux pairs du réseau';
 $string['backsettings'] = 'Revenir à la page de réglage';
 $string['configaccesssource'] = 'Origine des définitions d\'hôtes';
 $string['configaccesssource_desc'] = 'Choisit à partir de quelle source de données le bloc constitue sa liste d\'hôtes à contrôler par des champs d\'accès.';
+$string['configallowremoteadmins'] = 'Autorise les administrateurs distants';
+$string['configallowremoteadmins_desc'] = 'Permet à des utilisateurs du réseau (mnet) d\'être nommés administrateurs de site (customscript).';
 $string['configdisablemnetimportfilter'] = 'Désactiver les filtres d\'import MNET';
 $string['configdisplaylimit'] = 'Limite d\'affichage';
 $string['configdisplaylimit_desc'] = 'Définit le nombre maximum de liens à afficher avant de demander le filtrage.';
@@ -42,6 +44,10 @@ $string['confignewwindow'] = 'Navigation';
 $string['confignewwindow_desc'] = 'Vous pouvez choisir d\'ouvrir la destination dans une nouvelle fenêtre.';
 $string['configsingleaccountcheck'] = 'Identité MNET unique';
 $string['configsingleaccountcheck_desc'] = 'Ce réglage ajoute un contrôle supplémentaire au plugin d\'authentification MNET afin de s\'assurer qu\'un utilisateur dispose un compte unique entre son identité locale et son identité réseau.';
+$string['configdisablemnetimportfilter'] = 'Désactiver le filtre d\'import de champs de profil';
+$string['configldapaccessattributes'] = 'Attributs LDAP des accès';
+$string['configldaphostpatterns'] = 'Motifs d\'extraction du marqueur d\'hôte';
+$string['confighostwwwrootmask'] = 'Masque d\'URL racine de l\'hôte accessible';
 $string['createdfields'] = 'Champs d\'accès créés : ';
 $string['dosync'] = 'Synchroniser les champs d\'accès';
 $string['errornocapacitytologremote'] = 'Vous n\'avez pas la capacité d\'utiliser le réseau Moodle';
@@ -49,6 +55,7 @@ $string['failedfields'] = 'Champs d\'accès non créés (erreurs) : ';
 $string['fieldkey'] = 'Code de champ';
 $string['fieldname'] = 'Accès aux plates-formes du réseau';
 $string['filter'] = 'Filtrer';
+$string['ldapmapping'] = 'Alimentation LDAP';
 $string['helpsync'] = 'resynchronisation des champs d\'accès';
 $string['ignoredfields'] = 'Plates-formes ignorées : ';
 $string['mnetaccess_description'] = 'Un service permettant de vérifier les droits d\'accès sur un noeud distant';
@@ -94,3 +101,12 @@ explorant le réseau Moodle de confiance.</p>
 
 $string['errorlocaladminconstrainted'] = 'Un administrateur d\'un noeud virtuel ne peut
 pas circuler à travers le réseau.';
+
+$string['configldapaccessattributes_desc'] = 'Une liste des attributs (séparés par une virgule) où des informations sur les sites
+accessibles sont disponibles.';
+
+$string['configldaphostpatterns_desc'] = 'Une liste d\'expression régulières (une par champ, séparées par des virgules), qui capturent (premier sous motif) la partie utile de l\'information d\'hote pour
+l\'attribution des accès.';
+
+$string['confighostwwwrootmask_desc'] = 'Un maske de génération du wwwroot que le bloc Mes hôtes du réseau peut reconnaître pour marquer le droit d\'accès.
+Ce motif doit contenir un emplacement %HOSTINFO% qui recevra le résultat de l\'extraction de motif du contenu des champs ci-dessus.';
