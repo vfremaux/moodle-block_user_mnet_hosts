@@ -130,8 +130,7 @@ class block_user_mnet_hosts extends block_list {
                     }
                 }
 
-                $pixurl = $OUTPUT->pix_url('/i/'.$host->application.'_host');
-                $icon  = '<img src="'.$pixurl.'" class="icon" alt="'.get_string('server', 'block_mnet_hosts').'" />';
+                $icon = $OUTPUT->pix_icon('/i/'.$host->application.'_host', get_string('server', 'block_mnet_hosts'));
 
                 $this->content->icons[] = $icon;
 
