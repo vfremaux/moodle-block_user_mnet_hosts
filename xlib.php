@@ -263,10 +263,10 @@ function user_mnet_host_update_ldapuser(&$user, $options) {
                     mtrace("User Mnet Hosts accesses : Using pattern $pattern");
                 }
 
-                 if (empty($user->$attr)) {
+                if (empty($user->$attr)) {
                     // Ignore non relevant values.
                     continue;
-                 }
+                }
 
                 if (!is_array($user->$attr)) {
                     // Convert everything into array.
