@@ -38,9 +38,11 @@ function user_mnet_hosts_get_accesskey($wwwroot, $full = false) {
 function user_mnet_host_add_access($user, $wwwroot) {
     return user_mnet_hosts_add_access($user, $wwwroot);
 }
+
 function user_mnet_host_remove_access($user, $wwwroot) {
     return user_mnet_hosts_remove_access($user, $wwwroot);
 }
+
 function user_mnet_host_read_access($user, $wwwroot) {
     return user_mnet_hosts_read_access($user, $wwwroot);
 }
@@ -176,14 +178,121 @@ function user_mnet_hosts_read_group_access($groupid, $wwwroot) {
 function user_mnet_hosts_get_local_user($remoteuser, $remotehost) {
     global $DB;
 
+    $config = get_config('block_user_mnet_hosts');
+
     $params = array('username' => $remoteuser->username, 'idnumber' => $remoteuser->idnumber);
+
+    if ($remoteuser->username == 'admin') {
+        // Admins are exceptions. They cannot endorse local admin account.
+        $params['mnethostid'] = $remotehost->id;
+    }
+
     if ($localuser = $DB->get_record('user', $params)) {
-        if ($remoteuser->profile_field_isprimaryassignation &&
+
+        if (!empty($config->forceauth) && ($localuser->auth == $config->forceauth)) {
+            // If we find a user having the forced auth, use this one.
+            // Primary assignation not used in this case.
+            return $localuser;
+        }
+
+        if (!empty($remoteuser->profile_field_isprimaryassignation) &&
                 (($localuser->auth == 'mnet') ||
                         ($localuser->auth == 'multimnet'))) {
+            // This is used in mnet case. Users roam using mnet accounts.
             $localuser->mnethostid = $remotehost->id;
         }
 
         return $localuser;
     }
+}
+
+/**
+ * A special strategy to update a user integrated from ldap.
+ *
+ */
+function user_mnet_host_update_ldapuser(&$user, $options) {
+    global $DB, $CFG;
+
+    $config = get_config('block_user_mnet_hosts');
+
+    // BASIC STRATEGY.
+
+    // All users have access marked on self.
+    if (empty($options['simulate'])) {
+        user_mnet_hosts_set_access($user->id, true);
+    } else {
+        mtrace('[SIMULATION] Giving user access to '.$CFG->wwwroot);
+    }
+
+    // Setting default access field policy for powered users.
+    if (in_array($user->usertype, array('enseignant', 'administration', 'cdt', 'generic'))) {
+
+        // Setting for the master common root.
+        $like = $DB->sql_like('wwwroot', ':wwwroot', false, false);
+        if ($commonroot = $DB->get_field_select('mnet_host', 'wwwroot', $like, array('wwwroot' => $CFG->mainhostprefix.'%'))) {
+            if (empty($options['simulate'])) {
+                user_mnet_hosts_set_access($user->id, true, $commonroot);
+                mtrace('Giving user access to '.$commonroot);
+            } else {
+                mtrace('[SIMULATION] Giving user access to '.$commonroot);
+            }
+        } else {
+            mtrace('Giving teacher access : common host not found ');
+        }
+
+        /*
+         * ADVANCED STRATEGY.
+         * We have more information about user's capability to access other sites.
+         * F.e. given some info related to host is present in a field names "Rne"
+         */
+
+        if (!empty($config->ldap_access_attributes)) {
+
+            $attrs = explode(',', $config->ldap_access_attributes);
+            $patterns = explode(',', $config->ldap_host_patterns);
+
+            foreach ($attrs as $attr) {
+
+                $attr = core_text::strtolower($attr);
+
+                if (!empty($options['verbose'])) {
+                    mtrace("User Mnet Hosts accesses : Checking attribute $attr");
+                }
+                $pattern = array_shift($patterns);
+                if (!empty($options['verbose'])) {
+                    mtrace("User Mnet Hosts accesses : Using pattern $pattern");
+                }
+
+                if (empty($user->$attr)) {
+                    // Ignore non relevant values.
+                    continue;
+                }
+
+                if (!is_array($user->$attr)) {
+                    // Convert everything into array.
+                    $user->$attr = array(@$user->$attr);
+                }
+
+                foreach ($user->$attr as $value) {
+                    if (!empty($options['verbose'])) {
+                        mtrace("User Mnet Hosts accesses : \tChecking attribute value $value");
+                    }
+                    if (preg_match("/$pattern/", $value, $matches)) {
+                        $hostinfo = $matches[1];
+                        $hostwww = str_replace('%HOSTINFO%', $hostinfo, $config->host_wwwroot_mask);
+                        if (empty($options['simulate'])) {
+                            user_mnet_hosts_set_access($user->id, true, $hostwww);
+                            mtrace('Giving user access (advanced) to '.$hostwww);
+                        } else {
+                            mtrace('[SIMULATION] Giving user access (advanced) to '.$hostwww);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function block_user_mnet_hosts_get_knownhosts_ext($source = null) {
+    block_user_mnet_hosts_get_knownhosts($source);
 }
