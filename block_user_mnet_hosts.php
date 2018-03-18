@@ -41,15 +41,13 @@ class block_user_mnet_hosts extends block_list {
     }
 
     public function get_content() {
-        global $THEME, $CFG, $USER, $PAGE, $OUTPUT, $DB, $SESSION, $COURSE;
+        global $CFG, $USER, $PAGE, $OUTPUT, $SESSION, $COURSE;
 
         $config = get_config('block_user_mnet_hosts');
 
         if (empty($config->displaylimit)) {
             set_config('displaylimit', 40, 'block_user_mnet_hosts');
         }
-
-        $PAGE->requires->js('/blocks/user_mnet_hosts/js/jump.js');
 
         // Only for logged in users!
         if (!isloggedin() || isguestuser()) {
@@ -93,11 +91,27 @@ class block_user_mnet_hosts extends block_list {
         $this->content->icons = array();
         $this->content->footer = '';
 
+        $visiblehosts = array();
         if ($hosts) {
-            $maxhosts = count($hosts);
+
+            foreach ($hosts as $hostid => $host) {
+                // Implement user access filtering.
+                $hostaccesskey = strtolower(user_mnet_hosts_make_accesskey($host->wwwroot, false));
+                $hostkey = str_replace('access', '', $hostaccesskey);
+
+                if ($host->application == 'moodle' || empty($config->maharapassthru)) {
+                    if (!empty($mnetaccesses[$hostkey]) ||
+                            has_capability('block/user_mnet_hosts:accessall', context_system::instance())) {
+                        $visiblehosts[$hostid] = $host;
+                    }
+                }
+            }
+
+            $maxhosts = count($visiblehosts);
             $i = 0;
             $j = 0;
-            foreach ($hosts as $host) {
+
+            foreach ($visiblehosts as $host) {
                 $i++;
                 if ($maxhosts > $config->displaylimit) {
 
@@ -120,46 +134,34 @@ class block_user_mnet_hosts extends block_list {
                     break;
                 }
 
-                // Implement user access filtering.
-                $hostaccesskey = strtolower(user_mnet_hosts_make_accesskey($host->wwwroot, false));
-
-                if ($host->application == 'moodle' || empty($config->maharapassthru)) {
-                    if (empty($mnetaccesses[$hostaccesskey]) &&
-                            !has_capability('block/user_mnet_hosts:accessall', context_system::instance())) {
-                        continue;
-                    }
-                }
-
-                $pixurl = $OUTPUT->pix_url('/i/'.$host->application.'_host');
-                $icon  = '<img src="'.$pixurl.'" class="icon" alt="'.get_string('server', 'block_mnet_hosts').'" />';
+                $icon = $OUTPUT->pix_icon('/i/'.$host->application.'_host', get_string('server', 'block_mnet_hosts'));
 
                 $this->content->icons[] = $icon;
 
                 $cleanname = preg_replace('/^https?:\/\//', '', $host->name);
+                $cleanname = str_replace(': Se connecter sur le site', '', $cleanname); // Special.
                 $cleanname = str_replace('.', '', $cleanname);
                 $target = '';
                 if ($config->newwindow) {
-                    $target = ' target="'.$cleanname.'" ';
                     $target = ' target="_blank" ';
                 }
 
                 if ($host->id == $USER->mnethostid) {
-                    $this->content->items[] = '<a title="'.s($host->name).'"
-                                                  href="'.$host->wwwroot.'" '.$target.'>'.s($host->name).'</a>';
+                    $jumpurl = $host->wwwroot;
                 } else {
                     if (is_enabled_auth('multimnet')) {
-                        $jshandler = 'javascript:multijump(\''.$CFG->wwwroot.'\','.$host->id.');';
-                        $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.s($host->name).'</a>';
+                        $jumpurl = new moodle_url('/auth/multimnet/jump.php', array('hostid' => $host->id));
                     } else {
-                        $jshandler = 'javascript:standardjump(\''.$CFG->wwwroot.'\','.$host->id.');';
-                        $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jshandler.'">'.s($host->name).'</a>';
+                        $jumpurl = new moodle_url('/auth/mnet/jump.php', array('hostid' => $host->id));
                     }
                 }
+
+                $this->content->items[] = '<a title="'.s($host->name).'" href="'.$jumpurl.'" '.$target.'>'.$cleanname.'</a>';
             }
         } else {
             $this->content->footer = $OUTPUT->notification(get_string('nohostsforyou', 'block_user_mnet_hosts'));
         }
-        if (count($hosts) > $config->displaylimit) {
+        if ($maxhosts > $config->displaylimit) {
             $footer = '<form name="umhfilterform" action="#">';
             $footer .= '<input type="hidden" name="id" value="'.$COURSE->id.'" />';
             $footer .= '<input class="form-minify" type="text" name="umhfilter" value="'.(@$SESSION->umhfilter).'" />';
