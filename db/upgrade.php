@@ -21,13 +21,11 @@ require_once($CFG->dirroot.'/blocks/user_mnet_hosts/db/install.php');
 function xmldb_block_user_mnet_hosts_upgrade($oldversion = 0) {
     global $CFG, $DB;
 
-    $result = true;
-
     if ($oldversion < 2016051001) {
         xmldb_block_user_mnet_hosts_install();
 
-        // Customlabel savepoint reached.
-        upgrade_block_savepoint($result, 2016051001, 'user_mnet_hosts');
+        // User Mnet Host savepoint reached.
+        upgrade_block_savepoint(true, 2016051001, 'user_mnet_hosts');
     }
 
     if ($oldversion < 2016051500) {
@@ -49,8 +47,8 @@ function xmldb_block_user_mnet_hosts_upgrade($oldversion = 0) {
                 }
             }
         }
-        upgrade_block_savepoint($result, 2016051500, 'user_mnet_hosts');
+        upgrade_block_savepoint(true, 2016051500, 'user_mnet_hosts');
     }
 
-    return $result;
+    return true;
 }

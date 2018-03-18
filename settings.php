@@ -27,7 +27,7 @@ $html = "<a href=\"{$CFG->wwwroot}/blocks/user_mnet_hosts/admin.php\">$syncstr</
 $settings->add(new admin_setting_heading('synchronization', $label, $html));
 
 $sourceoptions = array('mnet_host' => get_string('mnetsource', 'block_user_mnet_hosts'),
-                       'block_vmoodle' => get_string('vmoodlesource', 'block_user_mnet_hosts'),
+                       'vmoodle' => get_string('vmoodlesource', 'block_user_mnet_hosts'),
                        'vmoodle_and_mnet' => get_string('vmoodleandmnetsource', 'block_user_mnet_hosts'));
 
 $key = 'block_user_mnet_hosts/source';
@@ -66,6 +66,11 @@ $label = get_string('configlocaladminoverride', 'block_user_mnet_hosts');
 $desc = get_string('configlocaladminoverride_desc', 'block_user_mnet_hosts');
 $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
+$key = 'block_user_mnet_hosts/allowremoteadmins';
+$label = get_string('configallowremoteadmins', 'block_user_mnet_hosts');
+$desc = get_string('configallowremoteadmins_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
+
 $key = 'block_user_mnet_hosts/newwindow';
 $label = get_string('confignewwindow', 'block_user_mnet_hosts');
 $desc = get_string('confignewwindow_desc', 'block_user_mnet_hosts');
@@ -75,3 +80,22 @@ $key = 'disablemnetimportfilter';
 $label = get_string('configdisablemnetimportfilter', 'block_user_mnet_hosts');
 $desc = get_string('configdisablemnetimportfilter_desc', 'block_user_mnet_hosts');
 $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
+
+$label = get_string('ldapmapping', 'block_user_mnet_hosts');
+$html = '';
+$settings->add(new admin_setting_heading('ldaphdr', $label, $html));
+
+$key = 'block_user_mnet_hosts/ldap_access_attributes';
+$label = get_string('configldapaccessattributes', 'block_user_mnet_hosts');
+$desc = get_string('configldapaccessattributes_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configtext($key, $label, $desc, ''));
+
+$key = 'block_user_mnet_hosts/ldap_host_patterns';
+$label = get_string('configldaphostpatterns', 'block_user_mnet_hosts');
+$desc = get_string('configldaphostpatterns_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configtext($key, $label, $desc, '^(.*)$'));
+
+$key = 'block_user_mnet_hosts/host_wwwroot_mask';
+$label = get_string('confighostwwwrootmask', 'block_user_mnet_hosts');
+$desc = get_string('confighostwwwrootmask_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configtext($key, $label, $desc, 'http://%HOSTINFO%.mymoodledomain.edu'));

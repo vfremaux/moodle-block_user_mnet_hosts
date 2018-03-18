@@ -35,7 +35,16 @@ if (!isset($CFG->dirroot)) {
 
 require_once($CFG->dirroot.'/lib/clilib.php'); // Cli only functions.
 
-list($options, $unrecognized) = cli_get_params(array('help' => false, 'host' => true), array('h' => 'help', 'H' => 'host'));
+list($options, $unrecognized) = cli_get_params(
+    array('help' => false,
+          'host' => false,
+          'debug' => false,
+    ),
+    array('h' => 'help',
+          'H' => 'host',
+          'd' => 'debug',
+    )
+);
 
 if ($unrecognized) {
     $unrecognized = implode("\n  ", $unrecognized);
@@ -48,8 +57,9 @@ Resyncs all access fields analysing the mnet accessible environement. Be careful
 that this will cleanup undefined hosts.
 
 Options:
--h, --help            Print out this help
--H, --host            the virtual host you are working for
+    -h, --help            Print out this help.
+    -H, --host            the virtual host you are working for.
+    -d, --debug           Turn on debug mode.
 
 Example:
 \$sudo -u www-data /usr/bin/php blocks/user_mnet_hosts/cli/resync.php
@@ -71,6 +81,18 @@ require(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); // Global m
 require_once($CFG->dirroot.'/blocks/user_mnet_hosts/locallib.php');
 echo('Config check : playing for '.$CFG->wwwroot."\n");
 
-block_user_mnet_hosts_resync(true);
+if (!empty($options['debug'])) {
+    $CFG->debug = E_ALL;
+}
 
+$results = block_user_mnet_hosts_resync(true);
+
+if (is_array($results)) {
+    list($created, $ignored, $failed) = $results;
+    mtrace("\tCreated : $created");
+    mtrace("\tIgnored : $ignored");
+    mtrace("\tFailed : $failed");
+}
+
+echo "Done.\n";
 exit(0);
