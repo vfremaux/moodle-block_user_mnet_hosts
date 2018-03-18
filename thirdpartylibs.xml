@@ -15,6 +15,13 @@
     <licenseversion></licenseversion>
   </library>
   <library>
+    <location>__customscripts</location>
+    <name>Customscripted core files</name>
+    <license>GPL</license>
+    <version></version>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
     <location>cli</location>
     <name>CLI Scripts</name>
     <license>GPL V3</license>

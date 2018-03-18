@@ -24,35 +24,56 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Given a host name, builds properly an access filed name and access field label (fullname)
+ * Given a host name, builds properly an access field name and access field label (fullname)
  * @param string $wwwroot the moodle hostname
- * @param bool $full if false, filteres the hostname and builds a compact short access key.
+ * @param bool $full if false, filters the hostname and builds a compact short access key.
  */
 function user_mnet_hosts_make_accesskey($wwwroot, $full = false) {
+    global $CFG;
 
     $deepness = get_config('block_user_mnet_hosts', 'keydeepness');
 
-    $accesskey = preg_replace('/https?:\/\//', '', $wwwroot);
+    if (empty($CFG->vmoodleusesubpaths)) {
+        // Use real hostname to build the key.
+        $accesskey = preg_replace('/https?:\/\//', '', $wwwroot);
 
-    if (!$full) {
-        // Filter if token.
-        $accesskey = str_replace('-', '', $accesskey);
-    }
-    $accesskeyparts = explode('.', $accesskey);
+        if (!$full) {
+            // Filter if token.
+            $accesskey = str_replace('-', '', $accesskey);
+        }
+        $accesskeyparts = explode('.', $accesskey);
 
-    $keytokens = array();
-    for ($i = 0; $i < $deepness; $i++) {
-        $keytokens[] = array_shift($accesskeyparts);
-    }
+        $keytokens = array();
+        for ($i = 0; $i < $deepness; $i++) {
+            $keytokens[] = array_shift($accesskeyparts);
+        }
 
-    if (!$full) {
-        // Return short key name.
-        $accesstoken = strtoupper(implode('', $keytokens));
-        return 'access'.$accesstoken;
+        if (!$full) {
+            // Return short key name.
+            $accesstoken = core_text::strtoupper(implode('', $keytokens));
+            return 'access'.$accesstoken;
+        } else {
+            // Return full key name.
+            $accesstoken = core_text::strtoupper(implode(' ', $keytokens));
+            return $accesstoken;
+        }
     } else {
-        // Return full key name.
-        $accesstoken = strtoupper(implode(' ', $keytokens));
-        return $accesstoken;
+        /*
+         * If we are using subpaths, rely on apparent $CFG->wwwroot.
+         * this has been resilved during boot lib and is reliable information
+         */
+        preg_match('#https?://.+?/([^/]*)#', $wwwroot, $matches);
+        $subpath = $matches[1];
+        if (!$full) {
+             $subpath = str_replace('-', '', $subpath);
+             $subpath = str_replace('_', '', $subpath);
+        }
+        $accesstoken = core_text::strtoupper($subpath);
+        if (!$full) {
+            return 'access'.$accesstoken;
+        } else {
+            return 'access'.$accesstoken;
+        }
     }
 }
 
@@ -69,7 +90,7 @@ function user_mnet_hosts_set_access($userid, $access, $wwwroot = null) {
         $wwwroot = $CFG->wwwroot;
     }
 
-    $accesskey = user_mnet_hosts_make_accesskey($wwwroot, true);
+    $accesskey = user_mnet_hosts_make_accesskey($wwwroot, false);
 
     if (!$field = $DB->get_record('user_info_field', array('shortname' => $accesskey))) {
         // Try to setup install if results not having done before.
@@ -81,6 +102,11 @@ function user_mnet_hosts_set_access($userid, $access, $wwwroot = null) {
         } else {
             return false;
         }
+    }
+
+    if (!$field) {
+        // User Mnet Host user fields seems not having been setup. Ignore user_mnet_host accesses.
+        return false;
     }
 
     if ($data = $DB->get_record('user_info_data', array('userid' => $userid, 'fieldid' => $field->id))) {
@@ -168,6 +194,43 @@ function user_mnet_hosts_get_access_fields() {
     return $mnetaccesses;
 }
 
+function block_user_mnet_hosts_get_knownhosts($source = null) {
+    global $DB;
+
+    $config = get_config('block_user_mnet_hosts');
+
+    if (is_null($source)) {
+        $source = (empty($config->source)) ? 'mnet_hosts' : $config->source;
+    }
+
+    // We are going to get all non-deleted hosts from our database.
+    if ($source == 'mnet_host') {
+        mtrace('Using mnet_hosts as hosts definitions');
+        $knownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot');
+    } else if ($source == 'vmoodle') {
+        mtrace('Using vmoodle register as hosts definitions');
+        $knownhosts = $DB->get_records('local_vmoodle', array('enabled' => 1), '', 'id,vhostname AS wwwroot');
+        mtrace('Found '.count($knownhosts).' definitions in register');
+    } else {
+        mtrace('Merging vmoodle register and mnet hosts as hosts definitions');
+        $knownhosts = $DB->get_records('local_vmoodle', array('enabled' => 1), '', 'id,vhostname AS wwwroot');
+        if ($mnetknownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot')) {
+            foreach ($mnetknownhosts as $mhid => $mh) {
+                if (empty($mh->wwwroot)) {
+                    continue;
+                }
+                // Only add those who are not in vmoodle register.
+                if (!$DB->record_exists('local_vmoodle', array('vhostname' => $mh->wwwroot))) {
+                    // Securise that id do not overlap.
+                    $knownhosts[1000 + $mhid] = $mh;
+                }
+            }
+        }
+    }
+
+    return $knownhosts;
+}
+
 /**
  * Creates and synchronize expected access control fields upon mnet environment analysis.
  *
@@ -180,12 +243,12 @@ function user_mnet_hosts_get_access_fields() {
  * records
  * @return void
  */
-function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host') {
+function block_user_mnet_hosts_resync($withcleanup = false, $source = null) {
     global $CFG, $DB;
 
     $expectedself = user_mnet_hosts_make_accesskey($CFG->wwwroot, false); // Need cleaning name from hyphens.
 
-    // If typical user field category does exist, make some for us.
+    // If typical user field category does not exist, make some for us.
     if (!isset($CFG->accesscategory)) {
         $accesscategory = new stdClass;
         $accesscategory->name = get_string('accesscategorydefault', 'block_user_mnet_hosts');
@@ -194,25 +257,11 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
         set_config('accesscategory', $id);
     }
 
-    // We are going to get all non-deleted hosts from our database.
-    if ($source == 'mnet_host') {
-        $knownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot');
-    } else if ($source == 'block_vmoodle') {
-        $knownhosts = $DB->get_records('block_vmoodle', array('enabled' => 1), '', 'id,vhostname AS wwwroot');
-    } else {
-        $knownhosts = $DB->get_records('block_vmoodle', array('enabled' => 1), '', 'id,vhostname AS wwwroot');
-        if ($mnetknownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot')) {
-            foreach ($mnetknownhosts as $mhid => $mh) {
-                if (empty($mh->wwwroot)) {
-                    continue;
-                }
-                // Only add those who are not in vmoodle register.
-                if (!$DB->record_exists('block_vmoodle', array('vhostname' => $mh->wwwroot))) {
-                    // Securise that id do not overlap.
-                    $knownhosts[1000 + $mhid] = $mh;
-                }
-            }
-        }
+    $knownhosts = block_user_mnet_hosts_get_knownhosts($source = null);
+
+    if (empty($knownhosts)) {
+        mtrace('No hosts to process.Resuming...');
+        return;
     }
 
     // Then we get all accessfields.
@@ -234,6 +283,7 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
         $expectedfieldname = user_mnet_hosts_make_accesskey($host->wwwroot, false); // Need cleaning name from hyphens.
         $hostkey = user_mnet_hosts_make_accesskey($host->wwwroot, true);
         $results = false;
+        $validnames[] = $expectedfieldname;
 
         if ($accessfields) {
             foreach ($accessfields as $field) {
@@ -253,7 +303,6 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
             $newfield->datatype = 'checkbox';
             $newfield->locked = 1;
             $newfield->categoryid = $CFG->accesscategory;
-            $validnames[] = $expectedfieldname;
 
             if (defined('CLI_SCRIPT')) {
                 mtrace('Creating access field '.$newfield->shortname);
@@ -270,7 +319,8 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
         // Finally cleanup all fields and data not matching hosts.
         if (!empty($validnames)) {
             list ($insql, $inparams) = $DB->get_in_or_equal($validnames, SQL_PARAMS_QM, 'param', false);
-            $alltodeletefields = $DB->get_records_select('user_info_field', " shortname LIKE 'access%' AND shortname $insql ", $inparams);
+            $select = " shortname LIKE 'access%' AND shortname $insql ";
+            $alltodeletefields = $DB->get_records_select('user_info_field', $select, $inparams);
             if (!empty($alltodeletefields)) {
                 foreach ($alltodeletefields as $f) {
 
@@ -308,6 +358,14 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
         }
         $rs->close();
     }
+
+    // Fix mnet host extra name chain.
+    $sql = "
+        UPDATE
+            {mnet_host}
+        SET
+            name = REPLACE(': Se connecter sur le site', '', name)
+    ";
 
     return array($created, $ignored, $failed);
 }
