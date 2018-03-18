@@ -55,6 +55,11 @@ Command line for Mysql user_mnet_host mapping resync.
     die;
 }
 
+$debug = '';
+if (!empty($options['debug'])) {
+    $debug = ' --debug ';
+}
+
 $allhosts = $DB->get_records('local_vmoodle', array('enabled' => 1));
 
 // Start updating.
@@ -64,7 +69,7 @@ echo "Starting updating user_mnet_host mapping fields....\n";
 
 $i = 1;
 foreach ($allhosts as $h) {
-    $workercmd = "php {$CFG->dirroot}/blocks/user_mnet_hosts/cli/resync.php --host=\"{$h->vhostname}\" ";
+    $workercmd = "php {$CFG->dirroot}/blocks/user_mnet_hosts/cli/resync.php {$debug} --host=\"{$h->vhostname}\" ";
 
     mtrace("Executing $workercmd\n######################################################\n");
     $output = array();
@@ -72,11 +77,17 @@ foreach ($allhosts as $h) {
     echo implode("\n", $output);
     if ($return) {
         if (!empty($options['fullstop'])) {
-            die("Worker ended with error");
+            echo implode("\n", $output)."\n";
+            die("Worker ended with error\n");
         } else {
-            mtrace("Worker ended with error");
+            echo "Worker ended with error:\n";
+            echo implode("\n", $output)."\n";
+        }
+    } else {
+        if (!empty($options['verbose'])) {
+            echo implode("\n", $output)."\n";
         }
     }
 }
 
-echo "done.\n";
+echo "Done.\n";

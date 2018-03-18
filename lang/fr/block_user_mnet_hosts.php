@@ -108,5 +108,5 @@ accessibles sont disponibles.';
 $string['configldaphostpatterns_desc'] = 'Une liste d\'expression régulières (une par champ, séparées par des virgules), qui capturent (premier sous motif) la partie utile de l\'information d\'hote pour
 l\'attribution des accès.';
 
-$string['confighostwwwrootmask_desc'] = 'Un maske de génération du wwwroot que le bloc Mes hôtes du réseau peut reconnaître pour marquer le droit d\'accès.
+$string['confighostwwwrootmask_desc'] = 'Un masque de génération du wwwroot que le bloc Mes hôtes du réseau peut reconnaître pour marquer le droit d\'accès.
 Ce motif doit contenir un emplacement %HOSTINFO% qui recevra le résultat de l\'extraction de motif du contenu des champs ci-dessus.';

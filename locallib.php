@@ -62,18 +62,18 @@ function user_mnet_hosts_make_accesskey($wwwroot, $full = false) {
          * If we are using subpaths, rely on apparent $CFG->wwwroot.
          * this has been resilved during boot lib and is reliable information
          */
-         preg_match('#https?://.+?/([^/]*)#', $wwwroot, $matches);
-         $subpath = $matches[1];
-         if (!$full) {
+        preg_match('#https?://.+?/([^/]*)#', $wwwroot, $matches);
+        $subpath = $matches[1];
+        if (!$full) {
              $subpath = str_replace('-', '', $subpath);
              $subpath = str_replace('_', '', $subpath);
-         }
-         $accesstoken = core_text::strtoupper($subpath);
-         if (!$full) {
-             return 'access'.$accesstoken;
-         } else {
-             return 'access'.$accesstoken;
-         }
+        }
+        $accesstoken = core_text::strtoupper($subpath);
+        if (!$full) {
+            return 'access'.$accesstoken;
+        } else {
+            return 'access'.$accesstoken;
+        }
     }
 }
 
@@ -194,38 +194,25 @@ function user_mnet_hosts_get_access_fields() {
     return $mnetaccesses;
 }
 
-/**
- * Creates and synchronize expected access control fields upon mnet environment analysis.
- *
- * Using vmoodle source may not require that the vmoodle records be effective, this is the case f.e, on
- * vmoodle slave instances. Vmoodle table values may be fed for environment definition, without having
- * no real use. VMoodle switching will only be effective on mainhost.
- *
- * @param bool $withcleanup If true, will delete all non relevant fields that do not match the environment
- * @param string $source the source table from where to consider the available environment. It can be mnet_host or block_vmoodle
- * records
- * @return void
- */
-function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host') {
-    global $CFG, $DB;
+function block_user_mnet_hosts_get_knownhosts($source = null) {
+    global $DB;
 
-    $expectedself = user_mnet_hosts_make_accesskey($CFG->wwwroot, false); // Need cleaning name from hyphens.
+    $config = get_config('block_user_mnet_hosts');
 
-    // If typical user field category does exist, make some for us.
-    if (!isset($CFG->accesscategory)) {
-        $accesscategory = new stdClass;
-        $accesscategory->name = get_string('accesscategorydefault', 'block_user_mnet_hosts');
-        $accesscategory->sortorder = 1;
-        $id = $DB->insert_record('user_info_category', $accesscategory);
-        set_config('accesscategory', $id);
+    if (is_null($source)) {
+        $source = (empty($config->source)) ? 'mnet_hosts' : $config->source;
     }
 
     // We are going to get all non-deleted hosts from our database.
     if ($source == 'mnet_host') {
+        mtrace('Using mnet_hosts as hosts definitions');
         $knownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot');
     } else if ($source == 'vmoodle') {
+        mtrace('Using vmoodle register as hosts definitions');
         $knownhosts = $DB->get_records('local_vmoodle', array('enabled' => 1), '', 'id,vhostname AS wwwroot');
+        mtrace('Found '.count($knownhosts).' definitions in register');
     } else {
+        mtrace('Merging vmoodle register and mnet hosts as hosts definitions');
         $knownhosts = $DB->get_records('local_vmoodle', array('enabled' => 1), '', 'id,vhostname AS wwwroot');
         if ($mnetknownhosts = $DB->get_records('mnet_host', array('deleted' => '0'), '', 'id,wwwroot')) {
             foreach ($mnetknownhosts as $mhid => $mh) {
@@ -239,6 +226,42 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
                 }
             }
         }
+    }
+
+    return $knownhosts;
+}
+
+/**
+ * Creates and synchronize expected access control fields upon mnet environment analysis.
+ *
+ * Using vmoodle source may not require that the vmoodle records be effective, this is the case f.e, on
+ * vmoodle slave instances. Vmoodle table values may be fed for environment definition, without having
+ * no real use. VMoodle switching will only be effective on mainhost.
+ *
+ * @param bool $withcleanup If true, will delete all non relevant fields that do not match the environment
+ * @param string $source the source table from where to consider the available environment. It can be mnet_host or block_vmoodle
+ * records
+ * @return void
+ */
+function block_user_mnet_hosts_resync($withcleanup = false, $source = null) {
+    global $CFG, $DB;
+
+    $expectedself = user_mnet_hosts_make_accesskey($CFG->wwwroot, false); // Need cleaning name from hyphens.
+
+    // If typical user field category does not exist, make some for us.
+    if (!isset($CFG->accesscategory)) {
+        $accesscategory = new stdClass;
+        $accesscategory->name = get_string('accesscategorydefault', 'block_user_mnet_hosts');
+        $accesscategory->sortorder = 1;
+        $id = $DB->insert_record('user_info_category', $accesscategory);
+        set_config('accesscategory', $id);
+    }
+
+    $knownhosts = block_user_mnet_hosts_get_knownhosts($source = null);
+
+    if (empty($knownhosts)) {
+        mtrace('No hosts to process.Resuming...');
+        return;
     }
 
     // Then we get all accessfields.
@@ -260,6 +283,7 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
         $expectedfieldname = user_mnet_hosts_make_accesskey($host->wwwroot, false); // Need cleaning name from hyphens.
         $hostkey = user_mnet_hosts_make_accesskey($host->wwwroot, true);
         $results = false;
+        $validnames[] = $expectedfieldname;
 
         if ($accessfields) {
             foreach ($accessfields as $field) {
@@ -279,7 +303,6 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = 'mnet_host
             $newfield->datatype = 'checkbox';
             $newfield->locked = 1;
             $newfield->categoryid = $CFG->accesscategory;
-            $validnames[] = $expectedfieldname;
 
             if (defined('CLI_SCRIPT')) {
                 mtrace('Creating access field '.$newfield->shortname);
