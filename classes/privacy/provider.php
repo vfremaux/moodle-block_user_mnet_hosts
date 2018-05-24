@@ -14,23 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version details.
- *
- * @package     block_user_mnet_hosts
- * @category    blocks
- * @author      Valery Fremaux <valery.fremaux@gmail.com>
- * @copyright   2013 Valery Fremaux (http://www.mylearningfactory.com)
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace block_user_mnet_hosts\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016090500;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2018042700;        // Requires this Moodle version.
-$plugin->component = 'block_user_mnet_hosts'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.5.0 (Build 2016090500)';
-
-// Non moodle attributes.
-$plugin->codeincrement = '3.5.0000';
+class provider implements \core_privacy\local\metadata\null_provider {
+}
