@@ -14,9 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Capabilities.
 $string['user_mnet_hosts:myaddinstance'] = 'Can add instance to my pages';
 $string['user_mnet_hosts:addinstance'] = 'Can add instance';
 $string['user_mnet_hosts:accessall'] = 'Can access all nodes';
+
+// Privacy.
+$string['privacy:metadata'] = 'The User Mnet Hosts block does not store any personal data about any user.';
 
 $string['accesscategory'] = 'Network control access fields';
 $string['accesscategory_desc'] = 'Category name for access user fields';
