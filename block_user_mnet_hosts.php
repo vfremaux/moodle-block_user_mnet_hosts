@@ -44,6 +44,7 @@ class block_user_mnet_hosts extends block_list {
         global $CFG, $USER, $PAGE, $OUTPUT, $SESSION, $COURSE;
 
         $config = get_config('block_user_mnet_hosts');
+        $maxhosts = 0;
 
         if (empty($config->displaylimit)) {
             set_config('displaylimit', 40, 'block_user_mnet_hosts');
@@ -161,6 +162,7 @@ class block_user_mnet_hosts extends block_list {
         } else {
             $this->content->footer = $OUTPUT->notification(get_string('nohostsforyou', 'block_user_mnet_hosts'));
         }
+
         if ($maxhosts > $config->displaylimit) {
             $footer = '<form name="umhfilterform" action="#">';
             $footer .= '<input type="hidden" name="id" value="'.$COURSE->id.'" />';
