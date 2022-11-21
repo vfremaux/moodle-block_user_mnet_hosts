@@ -29,11 +29,19 @@ list($options, $unrecognized) = cli_get_params(
     array(
         'help'             => false,
         'fullstop'         => false,
+        'wwwroot'          => false,
+        'users'            => false,
+        'where'            => false,
+        'action'           => false,
         'debug'            => false,
     ),
     array(
         'h' => 'help',
         's' => 'fullstop',
+        'W' => 'where',
+        'U' => 'users',
+        'a' => 'action',
+        'w' => 'wwwroot',
         'd' => 'debug',
     )
 );
@@ -45,11 +53,16 @@ if ($unrecognized) {
 
 if ($options['help']) {
     $help = "
-Command line for Mysql user_mnet_host mapping resync.
+Set or unset an access mark for one handled host to users or a selection of users.
 
     Options:
     -h, --help              Print out this help
     -s, --fullstop          Stops on furst error.
+    -U, --users             User id list.
+    -W, --where             A where clause given as <userfieldname>=<value> or profile_field_<fieldname>=<value>.
+    -w, --wwwroot           The target peer host wwwroot to give access to.
+    -a, --action            'set' (default) or 'unset'.
+    -S, --simulate          'set' (default) or 'unset'.
     -d, --debug             Stops on furst error.
 
 "; // TODO: localize - to be translated later when everything is finished.
@@ -63,16 +76,44 @@ if (!empty($options['debug'])) {
     $debug = ' --debug ';
 }
 
+if (empty($options['wwwroot'])) {
+    die("No target wwwroot given\n");
+}
+$wwwroot = '--wwwroot='.$options['wwwroot'];
+
+$users = '';
+if (!empty($options['users'])) {
+    $users = ' --users='.$options['users'];
+}
+
+$where = '';
+if (!empty($options['where'])) {
+    $where = ' --where='.$options['where'];
+}
+
+$simulate = '';
+if (!empty($options['simulate'])) {
+    $simulate = ' --simulate='.$options['simulate'];
+}
+
+$action = '';
+if (!empty($options['action'])) {
+    $action = ' --action='.$options['action'];
+} else {
+    $action = ' --action=set';
+}
+
 $allhosts = $DB->get_records('local_vmoodle', array('enabled' => 1));
 
 // Start updating.
 // Linux only implementation.
 
-echo "Starting updating user_mnet_host mapping fields....\n";
+echo "Starting setting acccess for users....\n";
 
 $i = 1;
 foreach ($allhosts as $h) {
-    $workercmd = "php {$CFG->dirroot}/blocks/user_mnet_hosts/cli/resync.php {$debug} --host=\"{$h->vhostname}\" ";
+    $workercmd = "php {$CFG->dirroot}/blocks/user_mnet_hosts/cli/setaccess.php {$debug} --host=\"{$h->vhostname}\"
+        {$action} {$users} {$where} {$wwwroot} {$simulate}";
 
     mtrace("Executing $workercmd\n######################################################\n");
     $output = array();

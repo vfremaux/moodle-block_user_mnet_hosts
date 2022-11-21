@@ -61,6 +61,16 @@ $label = get_string('configsingleaccountcheck', 'block_user_mnet_hosts');
 $desc = get_string('configsingleaccountcheck_desc', 'block_user_mnet_hosts');
 $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
+$authplugins = get_enabled_auth_plugins(true);
+$authoptions = array('' => get_string('noauthcheck', 'block_user_mnet_hosts'));
+foreach ($authplugins as $authname) {
+    $authoptions[$authname] = get_string('pluginname', 'auth_'.$authname);
+}
+$key = 'block_user_mnet_hosts/forceauth';
+$label = get_string('configforceauth', 'block_user_mnet_hosts');
+$desc = get_string('configforceauth_desc', 'block_user_mnet_hosts');
+$settings->add(new admin_setting_configselect($key, $label, $desc, '', $authoptions));
+
 $key = 'block_user_mnet_hosts/localadminoverride';
 $label = get_string('configlocaladminoverride', 'block_user_mnet_hosts');
 $desc = get_string('configlocaladminoverride_desc', 'block_user_mnet_hosts');

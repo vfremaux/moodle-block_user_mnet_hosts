@@ -60,7 +60,7 @@ function user_mnet_hosts_make_accesskey($wwwroot, $full = false) {
     } else {
         /*
          * If we are using subpaths, rely on apparent $CFG->wwwroot.
-         * this has been resilved during boot lib and is reliable information
+         * this has been resolved during boot lib and is reliable information
          */
         preg_match('#https?://.+?/([^/]*)#', $wwwroot, $matches);
         $subpath = $matches[1];
@@ -81,7 +81,7 @@ function user_mnet_hosts_make_accesskey($wwwroot, $full = false) {
  * set or unset an access to some peer
  * @param int $userid
  * @param bool $access true or false
- * @param string $wwwroot optional host root to give acces to. the access filed name is computed from the wwwroot url
+ * @param string $wwwroot optional host root to give acces to. the access field name is computed from the wwwroot url
  */
 function user_mnet_hosts_set_access($userid, $access, $wwwroot = null) {
     global $CFG, $DB;
@@ -289,6 +289,11 @@ function block_user_mnet_hosts_resync($withcleanup = false, $source = null) {
             foreach ($accessfields as $field) {
                 // If we have a match, we do have the field, we can skip the host.
                 if ($field->shortname == $expectedfieldname) {
+                    if ($field->categoryid != $CFG->accesscategory) {
+                        $field->categoryid = $CFG->accesscategory;
+                        $DB->update_record('user_info_field', $field);
+                        mtrace('erroneous field category fixed');
+                    }
                     $results = true;
                     $ignored++;
                     break;

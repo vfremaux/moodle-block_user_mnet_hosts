@@ -34,6 +34,8 @@ $string['configaccesssource'] = 'Access source';
 $string['configaccesssource_desc'] = 'Tells from where the block can find hosts definition to build required access control fields';
 $string['configallowremoteadmins'] = 'Allow remote admins';
 $string['configallowremoteadmins_desc'] = 'Allow mnet remote admins to be site admins. Needs a customscript to be activated.';
+$string['configforceauth'] = 'Force authentication';
+$string['configforceauth_desc'] = 'If defined, only accounts using this auth method will be candidate for single account resolution.';
 $string['configlocaladminoverride'] = 'Local admin can roam';
 $string['configlocaladminoverride_desc'] = 'If not checked, the local administrator cannot roam into network sites (encouraged)';
 $string['configdisplaylimit'] = 'Display limit';
@@ -63,6 +65,7 @@ $string['mnetaccess_service_name'] = 'Mnet Access Service';
 $string['mnetsource'] = 'Use active MNET hosts';
 $string['mnetbehaviour'] = 'MNET Behaviour';
 $string['nohostsforyou'] = 'No host you can reach';
+$string['noauthcheck'] = 'No auth check';
 $string['pluginname'] = 'User Mnet Hosts';
 $string['resync'] = 'Resync all fields';
 $string['syncfull'] = 'Access field creation and synchronisation tool';
@@ -81,10 +84,17 @@ $string['configldapaccessattributes'] = 'Ldap access attributes';
 $string['configldaphostpatterns'] = 'Ldap host patterns';
 $string['confighostwwwrootmask'] = 'WWWRoot Mask';
 
+$string['mnetaccess_description'] = 'If published to a remote Moodle, this will allow the remote moodle to ask for local
+access. If subcribed by moodle, this allows asking a remote moodle for access check.';
+
 $string['configmaharapassthru_desc'] = '
 If enabled, all mnet activated users can pass to any registered Mahara site. If disabled, profile field base
 validation is active even for Mahara sites.
 ';
+
+$string['errorlocaladminconstrainted_help'] = 'This can be overriden in global settings of the bloc.
+This default behaviour trends to avoid "admin" account confusion in a moodle network.';
+
 
 $string['configdisablemnetimportfilter_desc'] = '
 In standard moodle, mnet attributes transmission are hardly filtered in mnet auth exchanges. In enhanced mnet,
@@ -109,10 +119,12 @@ The format of those fields has to follow specified rules. This script will facil
 setup of required fields by exploring the accessible network.</p>
 ';
 
-$string['configldapaccessattributes_desc'] = 'Ldap attributes (coma separated) in the user ldap info object where to find some information about netword
-granted access';
+$string['configldapaccessattributes_desc'] = 'Ldap attributes (coma separated) in the user ldap info
+object where to find some information about network granted access';
 
-$string['configldaphostpatterns_desc'] = 'A list of regexp expression (coma separated, one per attribute) which first subpattern capturates the usefull information to build a host wwwroot';
+$string['configldaphostpatterns_desc'] = 'A list of regexp expression (coma separated, one per attribute) which first
+subpattern capturates the usefull information to build a host wwwroot';
 
-$string['confighostwwwrootmask_desc'] = 'A mask for generating the ouptut final form of a moodle wwwroot user_mnet_hosts bloc recognises for granting access to.
-this pattern should have final string parts and a replacement token %HOSTINFO% that will be fed with the result of the host pattern extraction.';
+$string['confighostwwwrootmask_desc'] = 'A mask for generating the output final form of a moodle wwwroot user_mnet_hosts bloc
+recognises for granting access to. this pattern should have final string parts and a replacement token %HOSTINFO% that will
+be fed with the result of the host pattern extraction.';

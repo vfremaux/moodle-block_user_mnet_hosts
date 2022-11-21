@@ -178,6 +178,10 @@ function user_mnet_hosts_read_group_access($groupid, $wwwroot) {
 function user_mnet_hosts_get_local_user($remoteuser, $remotehost) {
     global $DB;
 
+    if (!is_object($remoteuser)) {
+        $remoteuser = (object)$remoteuser;
+    }
+
     $config = get_config('block_user_mnet_hosts');
 
     $params = array('username' => $remoteuser->username, 'idnumber' => $remoteuser->idnumber);
@@ -229,7 +233,7 @@ function user_mnet_host_update_ldapuser(&$user, $options) {
 
         // Setting for the master common root.
         $like = $DB->sql_like('wwwroot', ':wwwroot', false, false);
-        if ($commonroot = $DB->get_field_select('mnet_host', 'wwwroot', $like, array('wwwroot' => $CFG->mainhostprefix.'%'))) {
+        if ($commonroot = $DB->get_field_select('mnet_host', 'wwwroot', $like, array('wwwroot' => @$CFG->mainhostprefix.'%'))) {
             if (empty($options['simulate'])) {
                 user_mnet_hosts_set_access($user->id, true, $commonroot);
                 mtrace('Giving user access to '.$commonroot);

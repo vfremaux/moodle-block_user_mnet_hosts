@@ -44,6 +44,8 @@ $string['confignewwindow'] = 'Navigation';
 $string['confignewwindow_desc'] = 'Vous pouvez choisir d\'ouvrir la destination dans une nouvelle fenêtre.';
 $string['configsingleaccountcheck'] = 'Identité MNET unique';
 $string['configsingleaccountcheck_desc'] = 'Ce réglage ajoute un contrôle supplémentaire au plugin d\'authentification MNET afin de s\'assurer qu\'un utilisateur dispose un compte unique entre son identité locale et son identité réseau.';
+$string['configforceauth'] = 'Authentification contrainte';
+$string['configforceauth_desc'] = 'Si défini, alors seuls les comptes sur cette source d\'authentification pourront être trouvés pour la résolution de l\'identité unique.';
 $string['configdisablemnetimportfilter'] = 'Désactiver le filtre d\'import de champs de profil';
 $string['configldapaccessattributes'] = 'Attributs LDAP des accès';
 $string['configldaphostpatterns'] = 'Motifs d\'extraction du marqueur d\'hôte';
@@ -66,6 +68,7 @@ $string['mnetbehaviour'] = 'Comportement du réseau MNET';
 $string['mnetmodifiers'] = 'Modificateur du réseau MNET';
 $string['mnetsource'] = 'Prendre les hôtes MNET actifs';
 $string['nohostsforyou'] = 'Aucun hôte disponible';
+$string['noauthcheck'] = 'Pas de contrôle de source d\'authentification';
 $string['pluginname'] = 'Controle d\'acces réseau';
 $string['resync'] = 'Resynchroniser les définitions';
 $string['syncfull'] = 'Outil de création et synchronisation des champs de contrôle d\'accès';
@@ -99,8 +102,11 @@ ce script permet de restaurer automatiquement les attributs du profil manquant, 
 explorant le réseau Moodle de confiance.</p>
 ';
 
-$string['errorlocaladminconstrainted'] = 'Un administrateur d\'un noeud virtuel ne peut
+$string['errorlocaladminconstrainted'] = 'Un administrateur local d\'un noeud virtuel ne peut
 pas circuler à travers le réseau.';
+
+$string['errorlocaladminconstrainted_help'] = 'Cette interdiction peut être levée dans les réglages généraux du bloc.
+Ceci est le comportement par défaut pour éviter les confusions sur le compte "admin" dans un réseau de plates-formes.';
 
 $string['configldapaccessattributes_desc'] = 'Une liste des attributs (séparés par une virgule) où des informations sur les sites
 accessibles sont disponibles.';

@@ -27,10 +27,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2016090500;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2018112800;        // Requires this Moodle version.
+$plugin->requires  = 2020061500;        // Requires this Moodle version.
 $plugin->component = 'block_user_mnet_hosts'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.6.0 (Build 2016090500)';
+$plugin->release = '3.9.0 (Build 2016090500)';
 
 // Non moodle attributes.
-$plugin->codeincrement = '3.6.0000';
+$plugin->codeincrement = '3.9.0000';
+$plugin->privacy = 'public';

@@ -58,7 +58,8 @@ class block_user_mnet_hosts extends block_list {
         // Impeach local administrator to roam elsewhere.
         if (($USER->username == 'admin') && ($USER->auth == 'manual') && empty($config->localadminoverride)) {
             $this->content = new StdClass();
-            $this->content->footer = $OUTPUT->notification(get_string('errorlocaladminconstrainted', 'block_user_mnet_hosts'));
+            $helpicon = ' '.$OUTPUT->help_icon('errorlocaladminconstrainted', 'block_user_mnet_hosts');
+            $this->content->footer = $OUTPUT->notification(get_string('errorlocaladminconstrainted', 'block_user_mnet_hosts').$helpicon);
             return $this->content;
         }
 
