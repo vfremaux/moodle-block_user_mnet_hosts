@@ -30,8 +30,8 @@ $plugin->version   = 2016090500;        // The current plugin version (Date: YYY
 $plugin->requires  = 2022041200;        // Requires this Moodle version.
 $plugin->component = 'block_user_mnet_hosts'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;
+$plugin->supported = [40, 40];
 $plugin->release = '4.0.0 (Build 2016090500)';
-$plugin->supported = [40,40];
 
 // Non moodle attributes.
 $plugin->codeincrement = '4.0.0000';
