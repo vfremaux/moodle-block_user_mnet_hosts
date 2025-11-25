@@ -124,6 +124,9 @@ function user_mnet_hosts_set_access($userid, $access, $wwwroot = null) {
 function user_mnet_hosts_get_hosts() {
     global $DB, $CFG;
 
+    $config = get_config('block_user_mnet_hosts');
+    $source = (empty($config->source)) ? 'mnet_hosts' : $config->source;
+
     // Get the hosts and whether we are doing SSO with them.
     $sql = "
         SELECT DISTINCT
@@ -156,6 +159,32 @@ function user_mnet_hosts_get_hosts() {
              h.name";
 
     $hosts = $DB->get_records_sql($sql, array($CFG->mnet_localhost_id));
+
+    if (in_array($config->source, ['vmoodle', 'vmoodle_and_mnet'])) {
+
+        $validhosts = $DB->get_records_menu('local_vmoodle', ['enabled' => 1], '', 'vhostname AS wwwroot, id');
+        $validhostnames = array_keys($validhosts);
+
+        // Use vmoodle table to filter on enabled vhosts, strictely.
+        foreach ($hosts as $id => $vhost) {
+            if (!in_array($vhost->wwwroot, $validhostnames)) {
+                unset($hosts[$id]);
+            }
+        }
+    } else if ($config->source != 'mnet_host') {
+        // invalidate if is vmoodle disabled.
+        $invalidhosts = $DB->get_records_menu('local_vmoodle', ['enabled' => 0], '', 'vhostname AS wwwroot, id');
+        $invalidhostnames = array_keys($invalidhosts);
+        if (is_null($invalidhostnames)) {
+            $invalidhostnames = [];
+        }
+        foreach ($hosts as $id => $vhost) {
+            if (in_array($vhost->wwwroot, $invalidhostnames)) {
+                unset($hosts[$id]);
+            }
+        }
+    }
+
     return $hosts;
 }
 
